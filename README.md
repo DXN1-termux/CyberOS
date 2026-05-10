@@ -1,20 +1,37 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# CyberOS
 
-# Run and deploy your AI Studio app
+CyberOS is a purpose-built environment designed for security professionals and bug bounty hunters. It bridges the gap between complex security tool configuration and immediate productivity by providing a web-accessible, pre-configured Linux desktop environment.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/7028ee06-9424-4b31-8450-d1397a574d10
+- **Optimized for Security:** Comes pre-shipped with essential tools for reconnaissance, analysis, and exploitation:
+  - **Burp Suite:** Professional-grade web vulnerability scanner and proxy.
+  - **Firefox:** Pre-configured browser for web testing.
+  - **Wireshark:** Network protocol analyzer for traffic inspection.
+- **Web-First Access:** Access your security desktop directly through a web browser via VNC, eliminating the need for local desktop installation.
+- **Rapid Deployment:** Get your bug bounty environment running in minutes.
 
-## Run Locally
+## Getting Started
 
-**Prerequisites:**  Node.js
+To get started, clone the repository and launch the interface.
 
+### Installation
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+git clone DXN1-termux/CyberOS.git
+cd CyberOS
+```
+
+### Launch
+
+To start CyberOS and serve the VNC desktop on a specific port:
+
+```bash
+./CyberOS [port]
+```
+
+Once launched, point your VNC viewer (or web-VNC client) to the specified port to start your hunt.
+
+## Contributing
+
+Contributions are welcome! If you have suggestions for new tools or improvements to the environment configuration, feel free to open a pull request.
