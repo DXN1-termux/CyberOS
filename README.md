@@ -18,8 +18,8 @@ To get started, clone the repository and launch the interface.
 ### Installation
 
 ```bash
-git clone DXN1-termux/CyberOS.git
-cd CyberOS
+git clone DXN1-termux/CyberOS-.git
+cd CyberOS-
 ```
 
 ### Launch
