@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# CyberOS VNC Launcher
+
+if [ -z "$1" ]; then
+    echo -e "\033[1;31m[!] Error: No port specified\033[0m"
+    echo "Usage: ./CyberOS [port]"
+    echo "Example: ./CyberOS 5901"
+    exit 1
+fi
+
+PORT=$1
+
+# Map port to VNC display number
+if [ "$PORT" -ge 5900 ]; then
+    DISPLAY_NUM=$((PORT - 5900))
+else
+    DISPLAY_NUM=$PORT
+    PORT=$((5900 + DISPLAY_NUM))
+fi
+
+echo -e "\033[1;34m[+] Starting CyberOS on port $PORT (Display :$DISPLAY_NUM)...\033[0m"
+
+# Kill existing vncserver on this display, if any
+vncserver -kill :$DISPLAY_NUM &>/dev/null
+
+# Start the VNC Server with the XFCE desktop
+vncserver :$DISPLAY_NUM -geometry 1280x720 -depth 24
+
+echo -e "\033[1;32m[+] BOOM! CyberOS is live.\033[0m"
+echo -e "\033[1;32m[+] Ready for xfce or any vnc viewer you need.\033[0m"
+echo -e "[>] Connect your VNC viewer to <your-ip>:$PORT"

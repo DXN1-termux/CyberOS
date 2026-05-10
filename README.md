@@ -1,37 +1,44 @@
 # CyberOS
 
-CyberOS is a purpose-built environment designed for security professionals and bug bounty hunters. It bridges the gap between complex security tool configuration and immediate productivity by providing a web-accessible, pre-configured Linux desktop environment.
+CyberOS is a zero-hassle VNC-powered Linux distribution optimized primarily for bug bounty hunting and penetration testing. It ships out-of-the-box with an XFCE desktop environment and critical tools like **Burp Suite**, **Wireshark**, and **Firefox**.
 
-## Features
+Built for security professionals and students, CyberOS completely removes the headache of setting up a remote GUI environment so you can focus entirely on your target.
 
-- **Optimized for Security:** Comes pre-shipped with essential tools for reconnaissance, analysis, and exploitation:
-  - **Burp Suite:** Professional-grade web vulnerability scanner and proxy.
-  - **Firefox:** Pre-configured browser for web testing.
-  - **Wireshark:** Network protocol analyzer for traffic inspection.
-- **Web-First Access:** Access your security desktop directly through a web browser via VNC, eliminating the need for local desktop installation.
-- **Rapid Deployment:** Get your bug bounty environment running in minutes.
+## 🚀 Features
 
-## Getting Started
+- **Instant VNC Setup:** Launch a fully functional XFCE desktop accessible via VNC on any port of your choosing.
+- **Pre-installed Security Arsenal:** Everything you need for web exploitation and network inspection is pre-configured.
+- **Lightweight & Fast:** Minimal overhead, optimized for performance on remote VPS instances or local VMs.
 
-To get started, clone the repository and launch the interface.
+## 📦 Installation
 
-### Installation
+To get the environment cloned and dependencies installed:
 
 ```bash
-git clone DXN1-termux/CyberOS-.git
-cd CyberOS-
+git clone https://github.com/DXN1-termux/CyberOS.git
+cd CyberOS
+chmod +x setup.sh CyberOS
+./setup.sh
 ```
 
-### Launch
+*(Note: Ensure you have `sudo` privileges to install the core OS packages.)*
 
-To start CyberOS and serve the VNC desktop on a specific port:
+## ⚡ Usage
+
+To start your bug hunting environment, just run the launcher script and provide a port number:
 
 ```bash
-./CyberOS [port]
+./CyberOS 5901
 ```
 
-Once launched, point your VNC viewer (or web-VNC client) to the specified port to start your hunt.
+Boom. It launches on that port. Open any VNC Viewer (or web VNC client) and connect to your machine's IP on the port specified.
 
-## Contributing
+## 🛠️ Included Tools
 
-Contributions are welcome! If you have suggestions for new tools or improvements to the environment configuration, feel free to open a pull request.
+- **Desktop:** XFCE4 
+- **Web Security:** Burp Suite Community Edition (Java)
+- **Browser:** Firefox (Configured for Burp Suite routing)
+- **Networking:** Wireshark
+
+---
+*Disclaimer: CyberOS is built for educational and authorized security testing only.*
