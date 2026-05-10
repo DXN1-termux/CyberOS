@@ -1,0 +1,6 @@
+{
+  "name": "CyberOS",
+  "description": "A web-based dashboard and tracking hub for bug bounty hunters, designed for managing targets, vulnerabilities, and hunting progress.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
