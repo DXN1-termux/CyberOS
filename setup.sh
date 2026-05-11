@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # CyberOS Setup Script
-# Automatically installs XFCE, VNC, Firefox, Wireshark, and Burp Suite
+# Automatically installs XFCE, VNC, and a massive arsenal of security tools
 
 echo -e "\033[1;34m[+] Welcome to CyberOS Setup\033[0m"
 echo "[+] Detecting package manager and installing dependencies..."
@@ -9,12 +9,18 @@ echo "[+] Detecting package manager and installing dependencies..."
 if [ -x "$(command -v apt-get)" ]; then
     # Debian/Ubuntu
     sudo apt-get update
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y xfce4 xfce4-goodies tightvncserver firefox wireshark default-jre wget curl net-tools
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        xfce4 xfce4-goodies tightvncserver firefox wireshark default-jre \
+        wget curl net-tools nmap sqlmap gobuster dirb hydra wfuzz seclists \
+        john aircrack-ng tmux git python3-pip
 elif [ -x "$(command -v pacman)" ]; then
     # Arch based
-    sudo pacman -Sy --noconfirm xfce4 xfce4-goodies tigervnc firefox wireshark-qt jre-openjdk wget curl net-tools
+    sudo pacman -Sy --noconfirm \
+        xfce4 xfce4-goodies tigervnc firefox wireshark-qt jre-openjdk \
+        wget curl net-tools nmap sqlmap gobuster dirb hydra \
+        john aircrack-ng tmux git python-pip
 else
-    echo -e "\033[1;31m[-] Unsupported OS or package manager. Please install XFCE, VNC, and Java manually.\033[0m"
+    echo -e "\033[1;31m[-] Unsupported OS or package manager. Manual install required.\033[0m"
     exit 1
 fi
 
@@ -29,12 +35,21 @@ if [ ! -f /usr/local/bin/burpsuite ]; then
     sudo chmod +x /usr/local/bin/burpsuite
 fi
 
+echo -e "\033[1;34m[+] Fetching Custom CyberOS Wallpaper...\033[0m"
+mkdir -p ~/.config/xfce4/xfconf/xfce-perchannel-xml/
+mkdir -p ~/Pictures
+wget -qO ~/Pictures/cyberos-wallpaper.jpg "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=1920&h=1080"
+# XFCE script to set wallpaper will run on first boot
+
 echo -e "\033[1;34m[+] Configuring VNC xstartup for XFCE...\033[0m"
 mkdir -p ~/.vnc
 cat << 'EOF' > ~/.vnc/xstartup
 #!/bin/bash
 xrdb $HOME/.Xresources
 startxfce4 &
+
+# Wait for XFCE to start, then set custom wallpaper
+(sleep 5 && xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image -s "$HOME/Pictures/cyberos-wallpaper.jpg" --create -t string) &
 EOF
 chmod +x ~/.vnc/xstartup
 
