@@ -15,7 +15,7 @@ while true; do
     read -p "Select option: " opt
     case "$opt" in
         1) bash "${CYBEROS_BASE}/setup.sh" ;;
-        2) validate_installation && log_success "Systems OK" || log_err "Systems compromised" ;;
+        2) validate_installation && log_success "Systems OK" || log_error "Systems compromised" ;;
         3) exit 0 ;;
         *) echo "Invalid option" ;;
     esac
