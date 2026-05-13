@@ -1,0 +1,15 @@
+{
+  "version": "2.0.2",
+  "codename": "IMMUTABLE_CORE",
+  "dependencies": {
+    "core": ["xfce4", "tigervnc", "firefox", "git", "nodejs", "python"],
+    "security": ["nmap", "sqlmap", "metasploit", "hydra", "hashcat"],
+    "golang": ["nuclei", "subfinder", "httpx", "ffuf"]
+  },
+  "config": {
+    "vnc_port": 5901,
+    "display_depth": 24,
+    "theme": "Adwaita-dark"
+  },
+  "integrity": "verified"
+}
