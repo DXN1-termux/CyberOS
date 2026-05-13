@@ -9,30 +9,49 @@ log_info "Welcome to CyberOS Setup (Termux)"
 [ -z "$PREFIX" ] && { log_error "Termux prefix not found."; exit 1; }
 
 # 2. Package Management with retries
-log_info "Updating system and installing base dependencies..."
+log_info "Updating system and enabling repositories..."
 retry pkg update -y
-# Add unstable repo for advanced security tools
-pkg install -y unstable-repo
-pkg update
+pkg install -y x11-repo unstable-repo
+retry pkg update -y
 
-retry pkg install -y xfce4 xfce4-goodies tigervnc firefox wireshark-qt openjdk-17 \
-    wget curl net-tools nmap tmux git python golang \
-    gimp sqlmap hydra metasploit hashcat nikto masscan || { log_error "Base package installation failed."; exit 1; }
+log_info "Installing core system tools..."
+retry pkg install -y wget curl git tmux python golang openjdk-17 net-tools lsof || exit 1
+
+log_info "Installing desktop environment..."
+retry pkg install -y xfce4 xfce4-goodies tigervnc firefox wireshark-qt gimp || log_warn "Desktop install partially failed."
+
+log_info "Installing primary security tools..."
+retry pkg install -y nmap sqlmap hydra metasploit hashcat nikto masscan || log_warn "Some security tools failed to install."
 
 # 3. Security Tool Builds with validation
-log_info "Installing security tools..."
+log_info "Installing Go-based security tools..."
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 mkdir -p "$GOPATH/bin"
+add_to_path "$GOPATH/bin"
 
 tools=("subfinder" "httpx" "nuclei" "ffuf" "assetfinder" "gospider" "anew" "gf")
 for tool in "${tools[@]}"; do
-    log_info "Installing $tool..."
-    retry go install -v "github.com/projectdiscovery/$tool/v2/cmd/$tool@latest" || \
-    retry go install -v "github.com/tomnomnom/$tool@latest" || \
-    retry go install -v "github.com/ffuf/ffuf/v2@latest" || \
-    log_warn "Failed to install $tool, skipping."
+    log_info "Building $tool..."
+    # Check if tool already exists to save time
+    if ! command -v "$tool" &>/dev/null; then
+        retry go install -v "github.com/projectdiscovery/$tool/v2/cmd/$tool@latest" || \
+        retry go install -v "github.com/tomnomnom/$tool@latest" || \
+        retry go install -v "github.com/ffuf/ffuf/v2@latest" || \
+        log_warn "Failed to install $tool."
+    else
+        log_success "$tool is already installed."
+    fi
 done
+
+# 4. VNC Security Prep
+log_info "Configuring VNC password..."
+mkdir -p ~/.vnc
+if [ ! -f ~/.vnc/passwd ]; then
+    echo "password" | vncpasswd -f > ~/.vnc/passwd
+    chmod 600 ~/.vnc/passwd
+    log_success "VNC password set to 'password' (Change with 'vncpasswd')"
+fi
 
 # 4. XFCE Optimization with health checks
 log_info "Optimizing XFCE..."

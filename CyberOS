@@ -20,36 +20,45 @@ if [ ! "$PORT" -ge 0 ] 2>/dev/null; then
     exit 1
 fi
 
-# Map port to VNC display number (Simple mapping)
+# Map port to VNC display number
 DISPLAY_NUM=$((PORT - 5900))
-# If port is below 5900, treat it as display number directly
-if [ "$DISPLAY_NUM" -lt 0 ]; then
-    DISPLAY_NUM=$PORT
-    PORT=$((5900 + DISPLAY_NUM))
+[ "$DISPLAY_NUM" -lt 0 ] && DISPLAY_NUM=$PORT
+
+# 1. Dependency check
+check_dependency vncserver || exit 1
+check_dependency lsof || { log_error "lsof is required. Run wizard setup."; exit 1; }
+
+# 2. VNC Password check
+if [ ! -f ~/.vnc/passwd ]; then
+    log_warn "VNC password not found. Creating default 'password'..."
+    mkdir -p ~/.vnc
+    echo "password" | vncpasswd -f > ~/.vnc/passwd
+    chmod 600 ~/.vnc/passwd
 fi
 
 log_info "Starting CyberOS on port $PORT (Display :$DISPLAY_NUM)..."
 
-# Ensure core dependencies exist (Using vncserver which is part of tigervnc)
-check_dependency vncserver || exit 1
+# 3. Handle existing sessions
+if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
+    log_warn "A service is already listening on port $PORT."
+    read -p "[?] Kill existing VNC session :$DISPLAY_NUM? (y/n): " confirm
+    if [ "$confirm" = "y" ]; then
+        vncserver -kill :$DISPLAY_NUM &>/dev/null
+        sleep 1
+    else
+        log_info "Aborting startup."
+        exit 0
+    fi
+fi
 
-# Kill existing vncserver on this display, if any
-vncserver -kill :$DISPLAY_NUM &>/dev/null
-
-# Start the VNC Server with the XFCE desktop
+# 4. Initialize VNC Server
 log_info "Initializing VNC server..."
 vncserver :$DISPLAY_NUM -depth 24 -name "CyberOS" &>/dev/null
 
-# Verify if the port is listening (Using netstat or lsof)
-sleep 2
-if command -v lsof >/dev/null; then
-    IS_LISTENING=$(lsof -Pi :$PORT -sTCP:LISTEN -t)
-elif command -v netstat >/dev/null; then
-    IS_LISTENING=$(netstat -tln | grep ":$PORT ")
-fi
-
-if [ -n "$IS_LISTENING" ]; then
-    log_info "BOOM! CyberOS is live."
+# 5. Health Verification
+sleep 3
+if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
+    log_success "BOOM! CyberOS is live."
     echo -e "[>] Connect your VNC viewer to localhost:$PORT"
 else
     log_error "VNC server failed to start on port $PORT. Check ~/.vnc/*.log"
