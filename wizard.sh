@@ -19,8 +19,9 @@ menu() {
     echo -e "\n ${BLUE}[1]${NC} Full System Installation / Update"
     echo -e " ${BLUE}[2]${NC} System Health Diagnostics"
     echo -e " ${BLUE}[3]${NC} Automated Resource Cleanup"
-    echo -e " ${BLUE}[4]${NC} Reset VNC Credentials"
-    echo -e " ${BLUE}[5]${NC} View README / Documentation"
+    echo -e " ${BLUE}[4]${NC} Launch Web Dashboard (Next.js)"
+    echo -e " ${BLUE}[5]${NC} Reset VNC Credentials"
+    echo -e " ${BLUE}[6]${NC} View README / Documentation"
     echo -e " ${RED}[0]${NC} Exit Console"
     echo -e "\n${CYAN}==================================================${NC}"
 }
@@ -28,7 +29,7 @@ menu() {
 while true; do
     header
     menu
-    printf "Select choice [0-5]: "
+    printf "Select choice [0-6]: "
     read -r opt
 
     case "$opt" in
@@ -41,7 +42,7 @@ while true; do
         2)
             log_info "Running Deep Diagnostics..."
             # Check for critical tools
-            tools="vncserver xfce4-session nmap git python go lsof"
+            tools="vncserver xfce4-session nmap git python go lsof node npm"
             failures=0
             for tool in $tools; do
                 if command -v "$tool" >/dev/null 2>&1; then
@@ -66,12 +67,22 @@ while true; do
             sleep 2
             ;;
         4)
+            log_info "Launching Web Dashboard..."
+            if [ -d "$CYBEROS_BASE/node_modules" ]; then
+                cd "$CYBEROS_BASE" && npm run dev &
+                log_success "Dashboard starting on http://localhost:3000"
+            else
+                log_error "Dashboard dependencies missing. Run installation first."
+            fi
+            sleep 3
+            ;;
+        5)
             log_info "Resetting VNC Password..."
             vncpasswd
             log_success "Password updated successfully."
             sleep 2
             ;;
-        5)
+        6)
             header
             head -n 50 "$CYBEROS_BASE/README.md"
             echo -e "\n... (Scroll up for more) ..."

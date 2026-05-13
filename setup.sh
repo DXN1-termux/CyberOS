@@ -19,12 +19,18 @@ retry 3 2 pkg install -y x11-repo unstable-repo || log_warn "Optional repos migh
 retry 3 5 pkg update -y
 
 # 3. Core System Manifest
-CORE_PKGS="wget curl git tmux python golang openjdk-17 net-tools lsof proot zip unzip"
+CORE_PKGS="wget curl git tmux python golang openjdk-17 nodejs net-tools lsof proot zip unzip"
 
 log_info "Installing core system packages..."
 for pkg in $CORE_PKGS; do
     ensure_dep "$pkg" || log_warn "Failed to install core package: $pkg"
 done
+
+# Install Web Dependencies if package.json exists
+if [ -f "$CYBEROS_BASE/package.json" ]; then
+    log_info "Initializing Web Dashboard dependencies..."
+    cd "$CYBEROS_BASE" && retry 3 5 npm install --silent || log_warn "Web dependency install failed."
+fi
 
 # 4. GUI Environment Manifest
 GUI_PKGS="xfce4 xfce4-goodies tigervnc firefox wireshark-qt gimp adwaita-icon-theme"
