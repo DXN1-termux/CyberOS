@@ -91,11 +91,11 @@ export default function CyberOSLanding() {
                 <div className="p-6 font-mono text-sm leading-loose">
                   <div className="text-gray-400 flex items-center gap-4">
                     <span className="text-cyan-600 select-none">root#</span>
-                    <span className="text-gray-200">git clone https://github.com/DXN1-termux/CyberOS.git</span>
+                    <span className="text-gray-200">cd $CYBEROS_BASE && bash setup.sh</span>
                   </div>
                   <div className="text-gray-400 flex items-center gap-4 mt-2">
                     <span className="text-cyan-600 select-none">root#</span>
-                    <span className="text-gray-200">cd CyberOS && ./setup.sh</span>
+                    <span className="text-gray-200">cd $CYBEROS_BASE && bash setup.sh</span>
                   </div>
                   <div className="text-emerald-500/70 mt-2 text-xs pl-8 border-l border-white/10 ml-2 py-2">
                     [+] Initializing Advanced Arsenal...<br/>
@@ -104,7 +104,7 @@ export default function CyberOSLanding() {
                   </div>
                   <div className="text-gray-400 flex items-center gap-4 mt-4">
                     <span className="text-cyan-600 select-none">root#</span>
-                    <span className="text-white font-bold text-cyan-100 glow">./CyberOS 5901</span>
+                    <span className="text-white font-bold text-cyan-100 glow">bash CyberOS 5901</span>
                   </div>
                   <div className="text-cyan-400 mt-2 text-xs pl-8 border-l border-cyan-500/30 ml-2 py-2 font-bold tracking-wide">
                     [+] SYNERGY ESTABLISHED. CyberOS is live.<br/>
