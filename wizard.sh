@@ -7,6 +7,13 @@ CYBEROS_BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$CYBEROS_BASE/lib/config.sh"
 source "$CYBEROS_BASE/lib/utils.sh"
 
+# Signal Traps for robust termination
+cleanup_and_exit() {
+    log_info "Received interrupt. Cleaning up resources..."
+    exit 0
+}
+trap cleanup_and_exit SIGINT SIGTERM
+
 header() {
     clear
     echo -e "${CYAN}==================================================${NC}"
