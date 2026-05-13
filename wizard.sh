@@ -5,8 +5,8 @@ set -e
 # ==============================================================================
 
 CYBEROS_BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$CYBEROS_BASE"/lib/config.sh"
-source "$CYBEROS_BASE"/lib/utils.sh"
+source "$CYBEROS_BASE/lib/config.sh"
+source "$CYBEROS_BASE/lib/utils.sh"
 
 # Signal Traps for robust termination
 cleanup_and_exit() {
@@ -19,7 +19,7 @@ header() {
     clear
     echo -e "${CYAN}==================================================${NC}"
     echo -e "          ${BLUE}CYBEROS MANAGEMENT CONSOLE${NC}           "
-    echo -e "          Version: "$CYBEROS_VERSION" ("$CYBEROS_CODENAME")          "
+    echo -e "          Version:  "$CYBEROS_VERSION" ( "$CYBEROS_CODENAME")          "
     echo -e "${CYAN}==================================================${NC}"
 }
 
@@ -41,17 +41,17 @@ while true; do
     printf "Select sector [0-7]: "
     read -r opt
 
-    case "$opt" in
+    case  "$opt" in
         1)
             log_step "Initializing Engine Update"
-            bash "$CYBEROS_BASE"/setup.sh"
+            bash "$CYBEROS_BASE/setup.sh"
             printf "\nPress ENTER to return..." && read -r _
             ;;
         2)
             log_step "Running Deep Diagnostic Suite"
             validate_installation && log_success "Core Integrity: VERIFIED" || log_error "Core Integrity: COMPROMISED"
             check_internet && log_success "Network Link: ACTIVE" || log_warn "Network Link: DEGRADED"
-            check_disk_space "$MIN_DISK_SPACE_MB"
+            check_disk_space  "$MIN_DISK_SPACE_MB"
             printf "\nPress ENTER to return..." && read -r _
             ;;
         3)
@@ -67,8 +67,8 @@ while true; do
             ;;
         4)
             log_step "Resource Optimization"
-            rm -rf "$HOME"/go/pkg" ~/.cache/go-build >/dev/null 2>&1
-            find "$CYBEROS_LOG_DIR" -name "*.log" -exec truncate -s 0 {} +
+            rm -rf "$HOME/go/pkg" ~/.cache/go-build >/dev/null 2>&1
+            find  "$CYBEROS_LOG_DIR" -name "*.log" -exec truncate -s 0 {} +
             log_success "Optimized system footprint."
             sleep 2
             ;;
@@ -79,14 +79,14 @@ while true; do
             echo -e " ${BLUE}[3]${NC} View Dashboard Logs"
             echo -e " ${BLUE}[0]${NC} Return"
             read -r db_opt
-            case "$db_opt" in
+            case  "$db_opt" in
                 1) 
-                    cd "$CYBEROS_BASE" && npm run dev &>/dev/null & 
+                    cd  "$CYBEROS_BASE" && npm run dev &>/dev/null & 
                     log_success "Dashboard signal active." ;;
                 2) 
                     pkill -f "next-server" && log_success "Dashboard signal terminated." ;;
                 3) 
-                    tail -n 20 "$CYBEROS_BASE"/.next/trace" 2>/dev/null || log_warn "No logs found." ;;
+                    tail -n 20 "$CYBEROS_BASE/.next/trace" 2>/dev/null || log_warn "No logs found." ;;
             esac
             sleep 2
             ;;
@@ -97,14 +97,14 @@ while true; do
             ;;
         7)
             log_info "Opening Configuration Editor (lib/config.sh)..."
-            nano "$CYBEROS_BASE"/lib/config.sh"
+            nano "$CYBEROS_BASE/lib/config.sh"
             ;;
         0)
             log_info "Disconnecting from Management Console."
             exit 0
             ;;
         *)
-            log_error "Invalid sector: "$opt"
+            log_error "Invalid sector:  "$opt"
             sleep 1
             ;;
     esac
