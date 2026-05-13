@@ -8,9 +8,10 @@ echo "========================================\033[0m"
 
 echo "[1] Run Full Installation/Update"
 echo "[2] Verify Environment Dependencies"
-echo "[3] Exit"
+echo "[3] Cleanup Environment"
+echo "[4] Exit"
 
-read -p "Select an option [1-3]: " opt
+read -p "Select an option [1-4]: " opt
 
 case $opt in
     1)
@@ -23,6 +24,11 @@ case $opt in
         check_dependency vncserver && check_dependency nmap && check_dependency git && log_info "All core tools found."
         ;;
     3)
+        log_info "Cleaning up temporary files..."
+        rm -rf "$GOPATH/pkg" ~/.cache/go-build
+        log_info "Cleanup complete."
+        ;;
+    4)
         exit 0
         ;;
     *)
