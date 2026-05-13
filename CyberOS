@@ -26,7 +26,8 @@ vncserver -kill :$DISPLAY_NUM &>/dev/null
 
 # Start the VNC Server with the XFCE desktop
 log_info "Initializing VNC server..."
-vncserver :$DISPLAY_NUM -geometry 1280x720 -depth 24 &>/dev/null
+# Using standard protocol settings to ensure broad client compatibility
+vncserver :$DISPLAY_NUM -depth 24 -name "CyberOS" &>/dev/null
 
 # Verify if the port is listening
 sleep 2
