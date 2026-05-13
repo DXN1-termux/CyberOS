@@ -1,23 +1,23 @@
-<h1 align="center">CyberOS v2.0.2 (IMMUTABLE_CORE)</h1>
+<h1 align="center">CyberOS v2.0.2</h1>
 <p align="center">
-  <b>MADE WITH ❤️ BY DXN1</b>
+  <b>Advanced VNC Security Distribution for Termux</b>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Build-v2.0.2--Phase--XII-blue.svg" alt="Version">
-  <img src="https://img.shields.io/badge/Status-Verifiable-cyan.svg" alt="Status">
+  <img src="https://img.shields.io/badge/Version-v2.0.2-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Status-Verified-blue.svg" alt="Status">
 </p>
 
 ---
 
 ## 📖 Overview
-**CyberOS** is a specialized, zero-hassle, VNC-powered Linux distribution. Now in its **Immutable Core (v2.0.2)** phase, CyberOS provides a cryptographically verifiable security environment that guarantees 100% environment reproducibility.
+**CyberOS** is a specialized, security-focused VNC distribution for Termux, designed for performance, reliability, and automated integrity management.
 
-### 🛡️ Phase XII Improvements: Verifiable Integrity
-- **Immutable Manifest (`manifest.json`):** A single, verifiable source of truth for all dependencies, environment variables, and configuration constants.
-- **Dependency Drift Detection:** The system now automatically audits the live runtime against the `manifest.json` to prevent environmental corruption or version drift.
-- **Self-Healing Audit Trail:** Integrated logging of autonomic recovery events for full environment accountability.
-- **Absolute Immutability:** System state is strictly enforced, ensuring consistent behavior across all Termux iterations.
+### 🛡️ Phase XII Improvements
+- **Environment Manifest (`manifest.json`):** Centralized registry for all system dependencies and configuration constants.
+- **Integrity Auditing:** Automated runtime verification against the system manifest to prevent dependency drift.
+- **Recovery Logging:** Systematic tracking of all automated repair operations.
+- **State Enforcement:** Strictly enforced system state for consistent behavior across Termux environments.
 
 CyberOS eliminates the tedious configuration of remote GUIs, security toolchains, and desktop environments, allowing you to focus entirely on your target.
 

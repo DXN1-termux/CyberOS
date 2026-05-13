@@ -1,6 +1,6 @@
 {
   "version": "2.0.2",
-  "codename": "IMMUTABLE_CORE",
+  "codename": "STABLE",
   "dependencies": {
     "core": ["xfce4", "tigervnc", "firefox", "git", "nodejs", "python"],
     "security": ["nmap", "sqlmap", "metasploit", "hydra", "hashcat"],

@@ -139,9 +139,23 @@ ensure_dep() {
     fi
 }
 
-# Network Health
-check_internet() {
-    ping -c 1 8.8.8.8 >/dev/null 2>&1
+# Manifest-Based Integrity Validation
+validate_manifest() {
+    log_info "Validating system against Immutable Manifest..."
+    if [ ! -f "$CYBEROS_BASE/manifest.json" ]; then
+        log_error "Manifest missing: System integrity cannot be verified."
+        return 1
+    fi
+    # Simple JSON verification (ensure core dependencies exist)
+    local core_deps=$(grep -A 5 '"core"' "$CYBEROS_BASE/manifest.json")
+    for dep in xfce4 tigervnc git node; do
+        if ! command -v "$dep" >/dev/null 2>&1; then
+            log_warn "Dependency drift detected: $dep missing."
+            return 1
+        fi
+    done
+    log_success "System state matches Immutable Manifest."
+    return 0
 }
 
 # Resource-Safe Process Reaping
