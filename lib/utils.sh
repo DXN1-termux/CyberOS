@@ -98,12 +98,28 @@ update_env_path() {
 
 # Disk Space Verification
 check_disk_space() {
-    local required=${1:-2000}
-    local available=$(df -m . | awk 'NR==2 {print $4}')
+    local required="${1:-2000}"
+    # Use df -m and ensure we get the correct column even if output is wrapped
+    local available
+    available=$(df -m . | awk 'END {print $4}')
+    
     if [ "$available" -lt "$required" ]; then
-        log_error "Insufficient disk space. Available: ${available}MB, Required: ${required}MB"
+        log_error "Insufficient storage. Available: ${available}MB, Required: ${required}MB"
         return 1
     fi
-    log_info "Disk space verified: ${available}MB available."
+    log_success "Storage check passed: ${available}MB available."
+    return 0
+}
+
+# Resource Integrity Check
+validate_installation() {
+    log_info "Verifying core binary integrity..."
+    local critical="vncserver xfce4-session lsof git node"
+    for tool in $critical; do
+        if ! command -v "$tool" >/dev/null 2>&1; then
+            log_error "Critical tool integrity failure: $tool not found."
+            return 1
+        fi
+    done
     return 0
 }

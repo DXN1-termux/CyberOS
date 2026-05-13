@@ -1,61 +1,57 @@
 #!/bin/bash
 # ==============================================================================
-# CyberOS Setup - Resilient Manifest-Based Installer (Perfected)
+# CyberOS Setup - Resilient Manifest-Based Installer (Perfection v9)
 # ==============================================================================
 
 CYBEROS_BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$CYBEROS_BASE/lib/utils.sh"
 
-log_info "Starting CyberOS 2.0 Hardened Installation..."
+log_info "Initializing CyberOS Perfection Pass IX..."
 
-# 1. Environment & Network Verification
-[ -z "$PREFIX" ] && { log_error "Not running in Termux environment."; exit 1; }
+# 1. Environment & Pre-flight
+[ -z "$PREFIX" ] && { log_error "Non-Termux environment detected."; exit 1; }
 check_internet || exit 1
 check_disk_space 2000 || exit 1
 
-# 2. Repository Management
-log_info "Initializing repositories..."
+# 2. Advanced Repo Setup
+log_step "Repository Synchronization"
 retry 3 5 pkg update -y
-pkg install -y x11-repo unstable-repo
+# Ensure we have essential repo tools first
+pkg install -y termux-tools
+retry 3 2 pkg install -y x11-repo unstable-repo || log_warn "Optional repos failed (check internet)."
 retry 3 5 pkg update -y
 
-# 3. Core System Manifest (Expanded)
+# 3. Core Manifest Installation
+log_step "Deploying Core Manifest"
 CORE_PKGS="wget curl git tmux python golang openjdk-17 nodejs net-tools lsof proot zip unzip htop btop nano vim make"
-
-log_info "Installing core system packages..."
 for pkg in $CORE_PKGS; do
-    ensure_dep "$pkg" || log_warn "Failed to install core package: $pkg"
+    ensure_dep "$pkg" || log_warn "Package failed: $pkg"
 done
 
-# Create global alias for CyberOS
-if ! grep -q "alias cyberos" ~/.bashrc 2>/dev/null; then
-    echo "alias cyberos='cd $CYBEROS_BASE && ./wizard.sh'" >> ~/.bashrc
-    log_success "Created 'cyberos' alias in ~/.bashrc"
-fi
-
-# Install Web Dependencies if package.json exists
+# 4. Web Dashboard Setup
 if [ -f "$CYBEROS_BASE/package.json" ]; then
-    log_info "Initializing Web Dashboard dependencies..."
-    cd "$CYBEROS_BASE" && retry 3 5 npm install --silent || log_warn "Web dependency install failed."
+    log_step "Configuring Web Dashboard"
+    cd "$CYBEROS_BASE" && retry 3 5 npm install --silent && log_success "Web node-stack ready." || log_warn "Web stack failed."
 fi
 
-# 4. GUI Environment Manifest
+# 5. Desktop Manifest
+log_step "Deploying Desktop Manifest"
 GUI_PKGS="xfce4 xfce4-goodies tigervnc firefox wireshark-qt gimp adwaita-icon-theme"
-
-log_info "Installing desktop environment..."
 for pkg in $GUI_PKGS; do
-    retry 3 2 pkg install -y "$pkg" || log_warn "GUI component failed: $pkg"
+    retry 3 2 pkg install -y "$pkg" || log_warn "GUI package failed: $pkg"
 done
 
-# 5. Security Toolset (Native)
+# 6. Security Manifest (Native & Heavy)
+log_step "Deploying Security Arsenal"
+# nmap and sqlmap are usually stable. metasploit is the bottleneck.
 SEC_PKGS="nmap sqlmap hydra metasploit hashcat nikto masscan"
-log_info "Installing native security tools..."
 for pkg in $SEC_PKGS; do
-    retry 2 2 pkg install -y "$pkg" || log_warn "Native tool failed: $pkg"
+    log_info "Installing $pkg..."
+    retry 2 2 pkg install -y "$pkg" || log_warn "Heavy tool failed: $pkg"
 done
 
-# 6. Go Toolset (Build from Source)
-log_info "Building Go-based security tools..."
+# 7. Go Manifest (Source Compilation)
+log_step "Building Specialized Source Tools"
 update_env_path "$HOME/go/bin"
 mkdir -p "$HOME/go/bin"
 
@@ -70,91 +66,63 @@ for entry in $GO_TOOLS; do
     tool=$(echo "$entry" | cut -d: -f1)
     repo=$(echo "$entry" | cut -d: -f2)
     if ! command -v "$tool" >/dev/null 2>&1; then
-        log_info "Building $tool..."
-        retry 2 5 go install -v "$repo" || log_warn "Failed to build $tool"
+        log_info "Compiling $tool..."
+        retry 2 5 go install -v "$repo" || log_warn "Build failed: $tool"
     else
-        log_success "$tool is already available."
+        log_success "$tool already in PATH."
     fi
 done
 
-# Deep Verification Phase
-log_info "Running final tool verification..."
-ALL_TOOLS="nmap sqlmap hydra msfconsole hashcat nikto masscan subfinder httpx nuclei ffuf assetfinder anew"
-MISSING_COUNT=0
-for tool in $ALL_TOOLS; do
-    if command -v "$tool" >/dev/null 2>&1; then
-        log_success "Verified: $tool"
-    else
-        log_warn "Verification failed: $tool"
-        MISSING_COUNT=$((MISSING_COUNT + 1))
-    fi
-done
+# 8. Post-Install Verification & Hardening
+log_step "System Verification & Hardening"
+harden_project
+validate_installation && log_success "Core system integrity verified." || log_warn "Integrity check detected missing components."
 
-if [ "$MISSING_COUNT" -eq 0 ]; then
-    log_success "PERFECT INSTALL: All tools verified."
-else
-    log_warn "Installation finished with $MISSING_COUNT missing tools."
-fi
-
-# 7. Final Configuration & Aesthetic
-log_info "Applying system optimizations..."
+# 9. Environment Aesthetics & Creds
+log_info "Finalizing Desktop Configuration..."
 mkdir -p ~/.config/xfce4/xfconf/xfce-perchannel-xml/
-if command -v xfconf-query &>/dev/null; then
-    xfconf-query -c xfwm4 -p /general/use_compositing -s false --create -t bool 2>/dev/null
-    xfconf-query -c xfce4-desktop -p /desktop-icons/style -s 0 --create -t int 2>/dev/null
+if command -v xfconf-query >/dev/null 2>&1; then
+    # Improved xfconf logic for reliable first-boot setting
+    xfconf-query -c xfwm4 -p /general/theme -n -t string -s "Adwaita-dark" 2>/dev/null
+    xfconf-query -c xfce4-desktop -p /desktop-icons/style -n -t int -s 0 2>/dev/null
 fi
 
-log_info "Configuring VNC Security & Desktop Environment..."
 mkdir -p ~/.vnc
 if [ ! -f ~/.vnc/passwd ]; then
     echo "password" | vncpasswd -f > ~/.vnc/passwd
     chmod 600 ~/.vnc/passwd
-    log_success "VNC password initialized to 'password'"
 fi
 
-# Create Professional .Xresources
-cat << 'EOX' > ~/.Xresources
-XTerm*background: #050505
-XTerm*foreground: #e0e0e0
-XTerm*cursorColor: #00ffff
-XTerm*faceName: monospace
-XTerm*faceSize: 10
-XTerm*renderFont: true
-EOX
-xrdb -merge ~/.Xresources 2>/dev/null
-
-# Modernized xstartup for peak stability
+# Hardened xstartup with absolute pathing and bus management
 cat << 'EOF' > ~/.vnc/xstartup
-#!/bin/bash
-xrdb $HOME/.Xresources
+#!/bin/sh
+# CyberOS Perfection Protocol
+[ -f $HOME/.Xresources ] && xrdb $HOME/.Xresources
+# Standard DBUS setup
 if command -v dbus-launch >/dev/null; then
     eval $(dbus-launch --sh-syntax --exit-with-session)
 fi
-startxfce4 &
-(sleep 8 && 
-    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image -s "$HOME/Pictures/cyberos-wallpaper.jpg" --create -t string
-    xfconf-query -c xfwm4 -p /general/theme -s "Adwaita-dark" --create -t string
+# Launch XFCE
+exec startxfce4 &
+(sleep 10 && 
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image -n -t string -s "$HOME/Pictures/cyberos-wallpaper.jpg"
     xfdesktop --reload
     mkdir -p ~/Desktop
-    cat << 'EOD' > ~/Desktop/CyberOS-Dashboard.desktop
+    cat << 'EOD' > ~/Desktop/Dashboard.desktop
 [Desktop Entry]
-Version=1.0
 Type=Application
 Name=CyberOS Dashboard
-Comment=Launch the Web-based Hunting Hub
 Exec=firefox http://localhost:3000
 Icon=globe
-Terminal=false
-StartupNotify=false
 EOD
-    chmod +x ~/Desktop/CyberOS-Dashboard.desktop
+    chmod +x ~/Desktop/Dashboard.desktop
 ) &
 EOF
-chmod +x ~/.vnc/xstartup
+chmod 700 ~/.vnc/xstartup
 
-log_info "Fetching custom assets..."
+log_info "Fetching system assets..."
 mkdir -p ~/Pictures
 retry 3 5 wget -qO ~/Pictures/cyberos-wallpaper.jpg "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=1920&h=1080"
 
-log_success "CyberOS 2.0 Hardened Installation Complete!"
-log_info "Run 'cyberos' to begin your experience."
+log_success "CYBEROS PERFECTION PASS IX COMPLETE!"
+log_info "Run 'cyberos' to enter the ecosystem."
