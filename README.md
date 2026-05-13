@@ -27,7 +27,7 @@ CyberOS comes equipped with a massive suite of industry-standard tools (approach
 - **Networking & Traffic:** `wireshark`, `net-tools`.
 - **Brute Forcing & Password Cracking:** `hydra`, `john`, `hashcat`.
 - **Infrastructure Hacking:** `metasploit-framework`, `enum4linux`, `smbmap`, `ldapsearch`.
-- **General Utilities:** `tmux`, `git`, `firefox`, `gimp`.
+- **General Utilities:** `tmux`, `git`, `firefox`, `gimp`, `htop`, `btop`.
 
 ---
 
@@ -36,8 +36,9 @@ CyberOS comes equipped with a massive suite of industry-standard tools (approach
 - **Universal Compatibility:** Designed to work flawlessly with every VNC viewer and terminal emulator.
 - **Optimized Performance:** Performance tweaks including disabled desktop compositing and visual effects.
 - **Modular Utility Library:** A backend library (`lib/utils.sh`) provides shared, reliable logic for logging and dependency validation across all system scripts.
-- **Setup Wizard:** An interactive command-line wizard (`wizard.sh`) handles installation and environment health checks.
+- **Management Console:** An interactive professional TUI wizard (`wizard.sh`) handles installation, health checks, and cleanup.
 - **Cyberpunk Aesthetic:** Custom hacker-themed wallpaper and high-contrast, optimized desktop theme.
+- **Web Dashboard:** A modern Next.js-powered hunting hub for tracking progress.
 
 ---
 
@@ -57,13 +58,16 @@ CyberOS comes equipped with a massive suite of industry-standard tools (approach
 ---
 
 ## ⚡ Usage
-Once installed, launch your environment:
+Once installed, you can launch the Management Console from anywhere using the global alias:
 ```bash
-./CyberOS <port>
+cyberos
 ```
-*Example:* `./CyberOS 5901`
 
-Connect any standard VNC viewer to `localhost:5901`.
+Alternatively, use the built-in **Makefile** for automated tasks:
+- `make install` - Full environment setup.
+- `make launch PORT=5901` - Start VNC session.
+- `make web` - Start the Next.js Dashboard.
+- `make cleanup` - Reclaim storage space.
 
 ---
 
@@ -72,8 +76,21 @@ Connect any standard VNC viewer to `localhost:5901`.
 - **Desktop:** XFCE4 (Lightweight, Modular)
 - **Display:** TigerVNC (Standard Protocol)
 - **Shell:** POSIX-compliant Dash/Bash/Zsh
-- **Build Engine:** Golang (for ProjectDiscovery & Tomnomnom tools)
+- **Web:** Next.js, React, TailwindCSS
+- **Build Engine:** Golang, Node.js
 - **Security:** Metasploit, Nmap, SQLMap, and more.
+
+---
+
+## 🛠 Project Structure
+- `CyberOS`: Self-healing session launcher.
+- `wizard.sh`: Professional TUI Management Console.
+- `setup.sh`: Manifest-driven hardened installer.
+- `Makefile`: Universal automation interface.
+- `lib/`: Centralized POSIX utility library.
+- `app/`: Next.js Web Dashboard source.
+- `CONTRIBUTING.md`: Guidelines for project contributors.
+- `SECURITY.md`: Security and vulnerability reporting policy.
 
 ---
 
@@ -104,4 +121,4 @@ CyberOS is engineered strictly for **educational purposes** and **authorized sec
 ---
 
 ## 🤝 Contributing
-Contributions are highly encouraged. Submit pull requests or issues for new tools or performance optimizations.
+Contributions are highly encouraged. Please review our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.

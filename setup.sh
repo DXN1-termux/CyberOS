@@ -19,12 +19,18 @@ pkg install -y x11-repo unstable-repo
 retry 3 5 pkg update -y
 
 # 3. Core System Manifest (Expanded)
-CORE_PKGS="wget curl git tmux python golang openjdk-17 nodejs net-tools lsof proot zip unzip htop btop nano vim"
+CORE_PKGS="wget curl git tmux python golang openjdk-17 nodejs net-tools lsof proot zip unzip htop btop nano vim make"
 
 log_info "Installing core system packages..."
 for pkg in $CORE_PKGS; do
     ensure_dep "$pkg" || log_warn "Failed to install core package: $pkg"
 done
+
+# Create global alias for CyberOS
+if ! grep -q "alias cyberos" ~/.bashrc 2>/dev/null; then
+    echo "alias cyberos='cd $CYBEROS_BASE && ./wizard.sh'" >> ~/.bashrc
+    log_success "Created 'cyberos' alias in ~/.bashrc"
+fi
 
 # Install Web Dependencies if package.json exists
 if [ -f "$CYBEROS_BASE/package.json" ]; then
