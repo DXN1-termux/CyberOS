@@ -143,7 +143,21 @@ check_internet() {
     ping -c 1 8.8.8.8 >/dev/null 2>&1
 }
 
-# Port Management (Non-Bashism)
-is_port_open() {
-    netstat -tuln | grep -q ":$1 "
+# Resource-Safe Process Reaping
+reap_process() {
+    local target="$1"
+    log_info "Reaping processes related to: $target"
+    pgrep -f "$target" | xargs -r kill -9 >/dev/null 2>&1
+    log_success "Cleaned $target resources."
+}
+
+# Advanced Resource Cleanup
+deep_cleanup() {
+    log_step "Deep Resource Scrubbing"
+    reap_process "metasploit"
+    reap_process "burp"
+    reap_process "wireshark"
+    rm -rf "$HOME/go/pkg" ~/.cache/go-build
+    find "$CYBEROS_LOG_DIR" -name "*.log" -exec truncate -s 0 {} +
+    log_success "Resource footprint minimized."
 }
