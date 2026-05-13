@@ -5,7 +5,7 @@ set -e
 # ==============================================================================
 
 CYBEROS_BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$CYBEROS_BASE/lib/utils.sh"
+source "$CYBEROS_BASE"/lib/utils.sh"
 
 log_info "Initializing CyberOS Perfection Pass IX..."
 
@@ -25,12 +25,12 @@ retry 3 5 pkg update -y
 # 3. Core Manifest Installation
 log_step "Deploying Core Manifest"
 CORE_PKGS="wget curl git tmux python golang openjdk-17 nodejs net-tools lsof proot zip unzip htop btop nano vim make"
-for pkg in $CORE_PKGS; do
-    ensure_dep "$pkg" || log_warn "Package failed: $pkg"
+for pkg in "$CORE_PKGS"; do
+    ensure_dep "$pkg" || log_warn "Package failed: "$pkg"
 done
 
 # 4. Web Dashboard Setup
-if [ -f "$CYBEROS_BASE/package.json" ]; then
+if [ -f "$CYBEROS_BASE"/package.json" ]; then
     log_step "Configuring Web Dashboard"
     cd "$CYBEROS_BASE" && retry 3 5 npm install --silent && log_success "Web node-stack ready." || log_warn "Web stack failed."
 fi
@@ -38,23 +38,23 @@ fi
 # 5. Desktop Manifest
 log_step "Deploying Desktop Manifest"
 GUI_PKGS="xfce4 xfce4-goodies tigervnc firefox wireshark-qt gimp adwaita-icon-theme"
-for pkg in $GUI_PKGS; do
-    retry 3 2 pkg install -y "$pkg" || log_warn "GUI package failed: $pkg"
+for pkg in "$GUI_PKGS"; do
+    retry 3 2 pkg install -y "$pkg" || log_warn "GUI package failed: "$pkg"
 done
 
 # 6. Security Manifest (Native & Heavy)
 log_step "Deploying Security Arsenal"
 # nmap and sqlmap are usually stable. metasploit is the bottleneck.
 SEC_PKGS="nmap sqlmap hydra metasploit hashcat nikto masscan"
-for pkg in $SEC_PKGS; do
-    log_info "Installing $pkg..."
-    retry 2 2 pkg install -y "$pkg" || log_warn "Heavy tool failed: $pkg"
+for pkg in "$SEC_PKGS"; do
+    log_info "Installing "$pkg"..."
+    retry 2 2 pkg install -y "$pkg" || log_warn "Heavy tool failed: "$pkg"
 done
 
 # 7. Go Manifest (Source Compilation)
 log_step "Building Specialized Source Tools"
-update_env_path "$HOME/go/bin"
-mkdir -p "$HOME/go/bin"
+update_env_path "$HOME"/go/bin"
+mkdir -p "$HOME"/go/bin"
 
 GO_TOOLS="subfinder:github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest \
 httpx:github.com/projectdiscovery/httpx/cmd/httpx@latest \
@@ -63,14 +63,14 @@ ffuf:github.com/ffuf/ffuf/v2@latest \
 assetfinder:github.com/tomnomnom/assetfinder@latest \
 anew:github.com/tomnomnom/anew@latest"
 
-for entry in $GO_TOOLS; do
+for entry in "$GO_TOOLS"; do
     tool=$(echo "$entry" | cut -d: -f1)
     repo=$(echo "$entry" | cut -d: -f2)
     if ! command -v "$tool" >/dev/null 2>&1; then
-        log_info "Compiling $tool..."
-        retry 2 5 go install -v "$repo" || log_warn "Build failed: $tool"
+        log_info "Compiling "$tool"..."
+        retry 2 5 go install -v "$repo" || log_warn "Build failed: "$tool"
     else
-        log_success "$tool already in PATH."
+        log_success "$tool" already in PATH."
     fi
 done
 
@@ -84,8 +84,8 @@ log_info "Finalizing Desktop Configuration..."
 mkdir -p ~/.config/xfce4/xfconf/xfce-perchannel-xml/
 
 # Fix for potential DBUS permission issues in Termux
-mkdir -p "$PREFIX/var/lib/dbus"
-[ ! -f "$PREFIX/var/lib/dbus/machine-id" ] && dbus-uuidgen > "$PREFIX/var/lib/dbus/machine-id"
+mkdir -p "$PREFIX"/var/lib/dbus"
+[ ! -f "$PREFIX"/var/lib/dbus/machine-id" ] && dbus-uuidgen > "$PREFIX"/var/lib/dbus/machine-id"
 
 if command -v xfconf-query >/dev/null 2>&1; then
     # Improved xfconf logic for reliable first-boot setting
@@ -103,7 +103,7 @@ fi
 cat << 'EOF' > ~/.vnc/xstartup
 #!/bin/sh
 # CyberOS Perfection Protocol
-[ -f $HOME/.Xresources ] && xrdb $HOME/.Xresources
+[ -f "$HOME"/.Xresources ] && xrdb "$HOME"/.Xresources
 # Standard DBUS setup
 if command -v dbus-launch >/dev/null; then
     eval $(dbus-launch --sh-syntax --exit-with-session)
@@ -111,7 +111,7 @@ fi
 # Launch XFCE
 exec startxfce4 &
 (sleep 10 && 
-    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image -n -t string -s "$HOME/Pictures/cyberos-wallpaper.jpg"
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image -n -t string -s "$HOME"/Pictures/cyberos-wallpaper.jpg"
     xfdesktop --reload
     mkdir -p ~/Desktop
     cat << 'EOD' > ~/Desktop/Dashboard.desktop
@@ -133,7 +133,7 @@ retry 3 5 wget -qO ~/Pictures/cyberos-wallpaper.jpg "https://images.unsplash.com
 # 10. Shell Integration
 log_step "Final Shell Integration"
 if ! grep -q "lib/env.sh" ~/.bashrc 2>/dev/null; then
-    echo "source $CYBEROS_BASE/lib/env.sh" >> ~/.bashrc
+    echo "source "$CYBEROS_BASE"/lib/env.sh" >> ~/.bashrc
     log_success "Shell persistence established."
 fi
 

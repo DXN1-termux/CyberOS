@@ -16,11 +16,11 @@ NC='\033[0m' # No Color
 [ -f "${CYBEROS_BASE}/lib/config.sh" ] && . "${CYBEROS_BASE}/lib/config.sh"
 
 # Logging Functions
-log_info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
-log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
-log_warn()    { echo -e "${YELLOW}[WARN]${NC} $1"; }
-log_error()   { echo -e "${RED}[ERROR]${NC} $1"; }
-log_step()    { echo -e "\n${CYAN}>>> $1${NC}"; }
+log_info()    { echo -e "${BLUE}[INFO]${NC} "$1"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} "$1"; }
+log_warn()    { echo -e "${YELLOW}[WARN]${NC} "$1"; }
+log_error()   { echo -e "${RED}[ERROR]${NC} "$1"; }
+log_step()    { echo -e "\n${CYAN}>>> "$1"${NC}"; }
 
 # Internet connectivity check
 check_internet() {
@@ -34,17 +34,17 @@ check_internet() {
 
 # Advanced Retry Mechanism
 retry() {
-    local max="$1"; shift
-    local delay="$1"; shift
-    local n=1
+    export max="$1"; shift
+    export delay="$1"; shift
+    export n=1
     while true; do
         "$@" && break || {
             if [ "$n" -lt "$max" ]; then
-                log_warn "Command failed. Attempt $n/$max. Retrying in ${delay}s..."
+                log_warn "Command failed. Attempt "$n"/"$max". Retrying in ${delay}s..."
                 sleep "$delay"
                 n=$((n + 1))
             else
-                log_error "Command failed after $max attempts."
+                log_error "Command failed after "$max" attempts."
                 return 1
             fi
         }
@@ -58,12 +58,12 @@ is_port_open() {
 
 # Dependency Manager
 ensure_dep() {
-    local dep=$1
-    local pkg=${2:-$dep}
+    export dep="$1"
+    export pkg=${2:-"$dep"}
     if ! command -v "$dep" >/dev/null 2>&1; then
-        log_info "Missing dependency: $dep. Attempting installation..."
+        log_info "Missing dependency: "$dep". Attempting installation..."
         pkg install -y "$pkg" || {
-            log_error "Failed to install $pkg. Manual intervention required."
+            log_error "Failed to install "$pkg". Manual intervention required."
             return 1
         }
     fi
@@ -74,27 +74,27 @@ ensure_dep() {
 harden_project() {
     log_info "Applying security hardening to project files..."
     find "$CYBEROS_BASE" -type f -name "*.sh" -exec chmod 700 {} +
-    [ -f "$CYBEROS_BASE/.env" ] && chmod 600 "$CYBEROS_BASE/.env"
-    [ -f "$HOME/.vnc/passwd" ] && chmod 600 "$HOME/.vnc/passwd"
+    [ -f "$CYBEROS_BASE"/.env" ] && chmod 600 "$CYBEROS_BASE"/.env"
+    [ -f "$HOME"/.vnc/passwd" ] && chmod 600 "$HOME"/.vnc/passwd"
     log_success "Hardening complete. Permissions restricted to owner."
 }
 
 # Persistent environment configuration (Refined for Isolation)
 update_env_path() {
-    local entry=$1
-    local env_file="${CYBEROS_ENV_FILE:-$CYBEROS_BASE/lib/env.sh}"
+    export entry="$1"
+    export env_file="${CYBEROS_ENV_FILE:-"$CYBEROS_BASE"/lib/env.sh}"
     mkdir -p "$(dirname "$env_file")"
     touch "$env_file"
     if ! grep -q "$entry" "$env_file" 2>/dev/null; then
-        echo "export PATH=\$PATH:$entry" >> "$env_file"
-        log_info "Registered $entry in CyberOS environment."
+        echo "export PATH=\"$PATH":"$entry" >> "$env_file"
+        log_info "Registered "$entry" in CyberOS environment."
     fi
     # Ensure source link in ~/.bashrc
-    if ! grep -q "source $env_file" ~/.bashrc 2>/dev/null; then
-        echo "[ -f \"$env_file\" ] && . \"$env_file\"" >> ~/.bashrc
+    if ! grep -q "source "$env_file" ~/.bashrc 2>/dev/null; then
+        echo "[ -f \"$env_file"\" ] && . \"$env_file"\" >> ~/.bashrc
         log_success "Integrated CyberOS environment with shell profile."
     fi
-    export PATH="$PATH:$entry"
+    export PATH="$PATH":"$entry"
 }
 
 # ==============================================================================
@@ -102,21 +102,21 @@ update_env_path() {
 # ==============================================================================
 
 # Unified Logging - Standardized for machine-readable auditing
-log_level() { echo -e "$(date +'%Y-%m-%dT%H:%M:%S%z') [$1] $2"; }
+log_level() { echo -e "$(date +'%Y-%m-%dT%H:%M:%S%z') ["$1"] "$2"; }
 log_info()  { log_level "INFO" "$1"; }
 log_warn()  { log_level "WARN" "$1"; }
 log_error() { log_level "ERR " "$1" >&2; }
-log_step()  { echo -e "\n\e[1;36m==> $1\e[0m"; }
+log_step()  { echo -e "\n\e[1;36m==> "$1"\e[0m"; }
 log_success() { log_level "SUCC" "$1"; }
 
 # Fail-safe command wrapper
 retry() {
-    local max=$1; shift
-    local delay=$1; shift
-    local count=0
+    export max="$1"; shift
+    export delay="$1"; shift
+    export count=0
     until "$@"; do
         count=$((count + 1))
-        [ $count -lt "$max" ] || return 1
+        [ "$count" -lt "$max" ] || return 1
         sleep "$delay"
     done
 }
@@ -134,7 +134,7 @@ harden_project() {
 # Dependency Integrity
 ensure_dep() {
     if ! command -v "$1" >/dev/null 2>&1; then
-        log_info "Installing missing dependency: $1"
+        log_info "Installing missing dependency: "$1"
         pkg install -y "$1" >/dev/null 2>&1 || return 1
     fi
 }
@@ -142,15 +142,15 @@ ensure_dep() {
 # Manifest-Based Integrity Validation
 validate_manifest() {
     log_info "Validating system against Immutable Manifest..."
-    if [ ! -f "$CYBEROS_BASE/manifest.json" ]; then
+    if [ ! -f "$CYBEROS_BASE"/manifest.json" ]; then
         log_error "Manifest missing: System integrity cannot be verified."
         return 1
     fi
     # Simple JSON verification (ensure core dependencies exist)
-    local core_deps=$(grep -A 5 '"core"' "$CYBEROS_BASE/manifest.json")
+    export core_deps=$(grep -A 5 '"core"' "$CYBEROS_BASE"/manifest.json")
     for dep in xfce4 tigervnc git node; do
         if ! command -v "$dep" >/dev/null 2>&1; then
-            log_warn "Dependency drift detected: $dep missing."
+            log_warn "Dependency drift detected: "$dep" missing."
             return 1
         fi
     done
@@ -160,10 +160,10 @@ validate_manifest() {
 
 # Resource-Safe Process Reaping
 reap_process() {
-    local target="$1"
-    log_info "Reaping processes related to: $target"
+    export target="$1"
+    log_info "Reaping processes related to: "$target"
     pgrep -f "$target" | xargs -r kill -9 >/dev/null 2>&1
-    log_success "Cleaned $target resources."
+    log_success "Cleaned "$target" resources."
 }
 
 # Advanced Resource Cleanup
@@ -172,7 +172,7 @@ deep_cleanup() {
     reap_process "metasploit"
     reap_process "burp"
     reap_process "wireshark"
-    rm -rf "$HOME/go/pkg" ~/.cache/go-build
+    rm -rf "$HOME"/go/pkg" ~/.cache/go-build
     find "$CYBEROS_LOG_DIR" -name "*.log" -exec truncate -s 0 {} +
     log_success "Resource footprint minimized."
 }

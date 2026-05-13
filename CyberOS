@@ -5,13 +5,13 @@ set -e
 # ==============================================================================
 
 CYBEROS_BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$CYBEROS_BASE/lib/config.sh"
-source "$CYBEROS_BASE/lib/utils.sh"
+source "$CYBEROS_BASE"/lib/config.sh"
+source "$CYBEROS_BASE"/lib/utils.sh"
 
 header() {
     echo -e "${CYAN}==================================================${NC}"
     echo -e "           ${BLUE}CYBEROS ENGINE INITIALIZER${NC}            "
-    echo -e "           Version: $CYBEROS_VERSION ($CYBEROS_CODENAME)          "
+    echo -e "           Version: "$CYBEROS_VERSION" ("$CYBEROS_CODENAME")          "
     echo -e "${CYAN}==================================================${NC}"
 }
 
@@ -29,31 +29,31 @@ autonomous_doctor() {
     # 3. Component Verification
     if ! validate_installation; then
         log_warn "Engine corruption detected. Triggering recovery..."
-        bash "$CYBEROS_BASE/setup.sh" || { log_error "Recovery failed. Critical system failure."; exit 1; }
+        bash "$CYBEROS_BASE"/setup.sh" || { log_error "Recovery failed. Critical system failure."; exit 1; }
     fi
 }
 
 launch_session() {
-    local port="${1:-$DEFAULT_VNC_PORT}"
-    local display_num=$((port - 5900))
+    export port="${1:-"$DEFAULT_VNC_PORT"}"
+    export display_num=$((port - 5900))
     [ "$display_num" -lt 0 ] && display_num="$port"
 
-    log_step "Session Negotiation: Port $port (Display :$display_num)"
+    log_step "Session Negotiation: Port "$port" (Display :"$display_num")"
 
     # Conflict Resolution Logic
     if is_port_open "$port"; then
-        log_warn "Active session detected on port $port."
+        log_warn "Active session detected on port "$port"."
         printf "[?] Intercept and restart session? (y/N): "
         read -r confirm
         case "$confirm" in
             [Yy]*)
-                log_info "Terminating display :$display_num..."
+                log_info "Terminating display :"$display_num"..."
                 vncserver -kill :"$display_num" >/dev/null 2>&1
                 rm -rf /tmp/.X"$display_num"-lock /tmp/.X11-unix/X"$display_num" >/dev/null 2>&1
                 sleep 2
                 ;;
             *)
-                log_info "Bypassing startup. Port $port remains occupied."
+                log_info "Bypassing startup. Port "$port" remains occupied."
                 exit 0
                 ;;
         esac
@@ -83,8 +83,8 @@ launch_session() {
         if is_port_open "$port"; then
             log_success "CYBEROS ENGINE ONLINE"
             echo -e "${CYAN}--------------------------------------------------${NC}"
-            echo -e "${GREEN}VNC Portal:${NC}   localhost:$port"
-            echo -e "${GREEN}Display:${NC}      :$display_num"
+            echo -e "${GREEN}VNC Portal:${NC}   localhost:"$port"
+            echo -e "${GREEN}Display:${NC}      :"$display_num"
             echo -e "${GREEN}Environment:${NC}  XFCE4"
             echo -e "${CYAN}--------------------------------------------------${NC}"
             
@@ -97,12 +97,12 @@ launch_session() {
         sleep 1
     done
 
-    log_error "Engine failed to stabilize. Check logs in $CYBEROS_LOG_DIR"
+    log_error "Engine failed to stabilize. Check logs in "$CYBEROS_LOG_DIR"
     exit 1
 }
 
 # Main Execution Flow
 header
 autonomous_doctor
-launch_session "${1:-$DEFAULT_VNC_PORT}"
+launch_session "${1:-"$DEFAULT_VNC_PORT"}"
 exit 0

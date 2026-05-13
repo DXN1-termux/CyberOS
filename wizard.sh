@@ -5,8 +5,8 @@ set -e
 # ==============================================================================
 
 CYBEROS_BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$CYBEROS_BASE/lib/config.sh"
-source "$CYBEROS_BASE/lib/utils.sh"
+source "$CYBEROS_BASE"/lib/config.sh"
+source "$CYBEROS_BASE"/lib/utils.sh"
 
 # Signal Traps for robust termination
 cleanup_and_exit() {
@@ -19,7 +19,7 @@ header() {
     clear
     echo -e "${CYAN}==================================================${NC}"
     echo -e "          ${BLUE}CYBEROS MANAGEMENT CONSOLE${NC}           "
-    echo -e "          Version: $CYBEROS_VERSION ($CYBEROS_CODENAME)          "
+    echo -e "          Version: "$CYBEROS_VERSION" ("$CYBEROS_CODENAME")          "
     echo -e "${CYAN}==================================================${NC}"
 }
 
@@ -44,7 +44,7 @@ while true; do
     case "$opt" in
         1)
             log_step "Initializing Engine Update"
-            bash "$CYBEROS_BASE/setup.sh"
+            bash "$CYBEROS_BASE"/setup.sh"
             printf "\nPress ENTER to return..." && read -r _
             ;;
         2)
@@ -67,7 +67,7 @@ while true; do
             ;;
         4)
             log_step "Resource Optimization"
-            rm -rf "$HOME/go/pkg" ~/.cache/go-build >/dev/null 2>&1
+            rm -rf "$HOME"/go/pkg" ~/.cache/go-build >/dev/null 2>&1
             find "$CYBEROS_LOG_DIR" -name "*.log" -exec truncate -s 0 {} +
             log_success "Optimized system footprint."
             sleep 2
@@ -86,7 +86,7 @@ while true; do
                 2) 
                     pkill -f "next-server" && log_success "Dashboard signal terminated." ;;
                 3) 
-                    tail -n 20 "$CYBEROS_BASE/.next/trace" 2>/dev/null || log_warn "No logs found." ;;
+                    tail -n 20 "$CYBEROS_BASE"/.next/trace" 2>/dev/null || log_warn "No logs found." ;;
             esac
             sleep 2
             ;;
@@ -97,14 +97,14 @@ while true; do
             ;;
         7)
             log_info "Opening Configuration Editor (lib/config.sh)..."
-            nano "$CYBEROS_BASE/lib/config.sh"
+            nano "$CYBEROS_BASE"/lib/config.sh"
             ;;
         0)
             log_info "Disconnecting from Management Console."
             exit 0
             ;;
         *)
-            log_error "Invalid sector: $opt"
+            log_error "Invalid sector: "$opt"
             sleep 1
             ;;
     esac
