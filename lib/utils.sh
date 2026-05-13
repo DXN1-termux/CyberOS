@@ -75,3 +75,15 @@ update_env_path() {
     fi
     export PATH="$PATH:$entry"
 }
+
+# Disk Space Verification (Requirement in MB)
+check_disk_space() {
+    local required=$1
+    local available=$(df -m . | awk 'NR==2 {print $4}')
+    if [ "$available" -lt "$required" ]; then
+        log_error "Insufficient disk space. Available: ${available}MB, Required: ${required}MB"
+        return 1
+    fi
+    log_info "Disk space verified: ${available}MB available."
+    return 0
+}

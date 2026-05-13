@@ -11,6 +11,7 @@ log_info "Starting CyberOS 2.0 Hardened Installation..."
 # 1. Environment & Network Verification
 [ -z "$PREFIX" ] && { log_error "Not running in Termux environment."; exit 1; }
 check_internet || exit 1
+check_disk_space 2000 || exit 1
 
 # 2. Repository Management
 log_info "Initializing repositories..."
@@ -111,6 +112,17 @@ if [ ! -f ~/.vnc/passwd ]; then
     log_success "VNC password initialized to 'password'"
 fi
 
+# Create Professional .Xresources
+cat << 'EOX' > ~/.Xresources
+XTerm*background: #050505
+XTerm*foreground: #e0e0e0
+XTerm*cursorColor: #00ffff
+XTerm*faceName: monospace
+XTerm*faceSize: 10
+XTerm*renderFont: true
+EOX
+xrdb -merge ~/.Xresources 2>/dev/null
+
 # Modernized xstartup for peak stability
 cat << 'EOF' > ~/.vnc/xstartup
 #!/bin/bash
@@ -145,4 +157,4 @@ mkdir -p ~/Pictures
 retry 3 5 wget -qO ~/Pictures/cyberos-wallpaper.jpg "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=1920&h=1080"
 
 log_success "CyberOS 2.0 Hardened Installation Complete!"
-log_info "Run './CyberOS [port]' to begin your session."
+log_info "Run 'cyberos' to begin your experience."
