@@ -19,7 +19,10 @@ elif [ -x "$(command -v pacman)" ]; then
         xfce4 xfce4-goodies tigervnc firefox wireshark-qt jre-openjdk \
         wget curl net-tools nmap sqlmap gobuster dirb hydra \
         john aircrack-ng tmux git python-pip \
-        subfinder httpx nuclei
+        subfinder httpx nuclei \
+        metasploit-framework hashcat burpsuite zaproxy gimp \
+        nikto masscan enum4linux smbmap ldapsearch dnsrecon \
+        ffuf gf anew assetfinder gospider feroxbuster
 else
     echo -e "\033[1;31m[-] Unsupported OS or package manager. Manual install required.\033[0m"
     exit 1
