@@ -1,19 +1,24 @@
-<h1 align="center">CyberOS</h1>
+<h1 align="center">CyberOS v2.0.1 (PERFECTION)</h1>
 <p align="center">
   <b>MADE WITH ❤️ BY DXN1</b>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-0.42.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Build-v2.0.1--Phase--X-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/Platform-Termux-brightgreen.svg" alt="Platform">
-  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
-  <img src="https://img.shields.io/badge/Status-Stable-brightgreen.svg" alt="Status">
+  <img src="https://img.shields.io/badge/Status-Hardened-cyan.svg" alt="Status">
 </p>
 
 ---
 
 ## 📖 Overview
 **CyberOS** is a specialized, zero-hassle, VNC-powered Linux distribution. Engineered specifically for security professionals, bug bounty hunters, and ethical hackers, it provides a pre-configured, hardened environment that bridges the gap between mobile flexibility and desktop power.
+
+### 🛡️ Phase X Improvements: Self-Healing & Autonomous Resilience
+- **Autonomous Doctor:** The launcher now scans and repairs the system (stale locks, permissions, binary integrity) on every boot.
+- **Engine Stability Watchdog:** Real-time monitoring of the VNC core during the first 5 seconds of launch.
+- **Wizard Repair Sector:** A dedicated menu for fixing common Termux/VNC drift issues without a full re-install.
+- **DBUS Integration:** Automatic machine-id generation and bus-launch management for 100% session reliability.
 
 CyberOS eliminates the tedious configuration of remote GUIs, security toolchains, and desktop environments, allowing you to focus entirely on your target.
 

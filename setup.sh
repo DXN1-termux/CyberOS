@@ -81,6 +81,11 @@ validate_installation && log_success "Core system integrity verified." || log_wa
 # 9. Environment Aesthetics & Creds
 log_info "Finalizing Desktop Configuration..."
 mkdir -p ~/.config/xfce4/xfconf/xfce-perchannel-xml/
+
+# Fix for potential DBUS permission issues in Termux
+mkdir -p "$PREFIX/var/lib/dbus"
+[ ! -f "$PREFIX/var/lib/dbus/machine-id" ] && dbus-uuidgen > "$PREFIX/var/lib/dbus/machine-id"
+
 if command -v xfconf-query >/dev/null 2>&1; then
     # Improved xfconf logic for reliable first-boot setting
     xfconf-query -c xfwm4 -p /general/theme -n -t string -s "Adwaita-dark" 2>/dev/null
@@ -124,5 +129,12 @@ log_info "Fetching system assets..."
 mkdir -p ~/Pictures
 retry 3 5 wget -qO ~/Pictures/cyberos-wallpaper.jpg "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=1920&h=1080"
 
-log_success "CYBEROS PERFECTION PASS IX COMPLETE!"
+# 10. Shell Integration
+log_step "Final Shell Integration"
+if ! grep -q "lib/env.sh" ~/.bashrc 2>/dev/null; then
+    echo "source $CYBEROS_BASE/lib/env.sh" >> ~/.bashrc
+    log_success "Shell persistence established."
+fi
+
+log_success "CYBEROS PERFECTION PASS X COMPLETE!"
 log_info "Run 'cyberos' to enter the ecosystem."
