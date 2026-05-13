@@ -1,22 +1,44 @@
 #!/bin/bash
-# CyberOS Utility Library
+# ==============================================================================
+# CyberOS Utility Library - Core Logic & Resilience
+# ==============================================================================
 
-log_info() { echo -e "\033[1;34m[INFO]\033[0m $1"; }
-log_error() { echo -e "\033[1;31m[ERROR]\033[0m $1"; }
-log_warn() { echo -e "\033[1;33m[WARN]\033[0m $1"; }
-log_success() { echo -e "\033[1;32m[SUCCESS]\033[0m $1"; }
+# ANSI Colors
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[1;34m'
+CYAN='\033[1;36m'
+NC='\033[0m' # No Color
 
-# Retry mechanism for volatile network operations
+# Logging Functions
+log_info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+log_warn()    { echo -e "${YELLOW}[WARN]${NC} $1"; }
+log_error()   { echo -e "${RED}[ERROR]${NC} $1"; }
+
+# Internet connectivity check
+check_internet() {
+    log_info "Checking internet connectivity..."
+    if ! ping -c 1 8.8.8.8 &>/dev/null; then
+        log_error "No internet connection detected. Please check your network."
+        return 1
+    fi
+    return 0
+}
+
+# Advanced Retry Mechanism
+# Usage: retry <max_attempts> <delay> <command...>
 retry() {
+    local max=$1; shift
+    local delay=$1; shift
     local n=1
-    local max=3
-    local delay=5
     while true; do
         "$@" && break || {
             if [ $n -lt $max ]; then
-                ((n++))
-                log_warn "Command failed. Attempt $n/$max. Retrying in $delay seconds..."
+                log_warn "Command failed. Attempt $n/$max. Retrying in ${delay}s..."
                 sleep $delay
+                ((n++))
             else
                 log_error "Command failed after $max attempts."
                 return 1
@@ -25,27 +47,31 @@ retry() {
     done
 }
 
-# Persistent environment configuration
-add_to_path() {
-    local entry="$1"
+# Port Status Check
+is_port_open() {
+    lsof -Pi :"$1" -sTCP:LISTEN -t >/dev/null 2>&1
+}
+
+# Dependency Manager (Auto-Install)
+ensure_dep() {
+    local dep=$1
+    local pkg=${2:-$dep}
+    if ! command -v "$dep" &>/dev/null; then
+        log_info "Missing dependency: $dep. Attempting installation..."
+        pkg install -y "$pkg" || {
+            log_error "Failed to install $pkg. Manual intervention required."
+            return 1
+        }
+    fi
+    return 0
+}
+
+# Path Management
+update_env_path() {
+    local entry=$1
     if ! grep -q "$entry" ~/.bashrc 2>/dev/null; then
         echo "export PATH=\$PATH:$entry" >> ~/.bashrc
-        log_info "Added $entry to ~/.bashrc"
+        log_success "Added $entry to PATH in ~/.bashrc"
     fi
-}
-
-check_dependency() {
-    if ! command -v "$1" &> /dev/null; then
-        log_error "Dependency '$1' missing."
-        return 1
-    fi
-    return 0
-}
-
-validate_file() {
-    if [ ! -s "$1" ]; then
-        log_error "File '$1' is missing or empty."
-        return 1
-    fi
-    return 0
+    export PATH="$PATH:$entry"
 }

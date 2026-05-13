@@ -1,78 +1,96 @@
 #!/bin/bash
+# ==============================================================================
+# CyberOS Setup - Resilient Manifest-Based Installer
+# ==============================================================================
 
-# CyberOS Setup Script (Termux Optimized & Resilient)
-source "$(dirname "$0")/lib/utils.sh"
+CYBEROS_BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$CYBEROS_BASE/lib/utils.sh"
 
-log_info "Welcome to CyberOS Setup (Termux)"
+log_info "Starting CyberOS 2.0 Hardened Installation..."
 
-# 1. Pre-flight check
-[ -z "$PREFIX" ] && { log_error "Termux prefix not found."; exit 1; }
+# 1. Environment & Network Verification
+[ -z "$PREFIX" ] && { log_error "Not running in Termux environment."; exit 1; }
+check_internet || exit 1
 
-# 2. Package Management with retries
-log_info "Updating system and enabling repositories..."
-retry pkg update -y
-pkg install -y x11-repo unstable-repo
-retry pkg update -y
+# 2. Repository Management
+log_info "Initializing repositories..."
+retry 3 5 pkg update -y
+retry 3 2 pkg install -y x11-repo unstable-repo || log_warn "Optional repos might have failed."
+retry 3 5 pkg update -y
 
-log_info "Installing core system tools..."
-retry pkg install -y wget curl git tmux python golang openjdk-17 net-tools lsof || exit 1
+# 3. Core System Manifest
+CORE_PKGS=(
+    "wget" "curl" "git" "tmux" "python" "golang" 
+    "openjdk-17" "net-tools" "lsof" "proot" "zip" "unzip"
+)
+
+log_info "Installing core system packages..."
+for pkg in "${CORE_PKGS[@]}"; do
+    ensure_dep "$pkg" || log_warn "Failed to install core package: $pkg"
+done
+
+# 4. GUI Environment Manifest
+GUI_PKGS=(
+    "xfce4" "xfce4-goodies" "tigervnc" "firefox" 
+    "wireshark-qt" "gimp" "adwaita-icon-theme"
+)
 
 log_info "Installing desktop environment..."
-retry pkg install -y xfce4 xfce4-goodies tigervnc firefox wireshark-qt gimp || log_warn "Desktop install partially failed."
+for pkg in "${GUI_PKGS[@]}"; do
+    retry 3 2 pkg install -y "$pkg" || log_warn "GUI component failed: $pkg"
+done
 
-log_info "Installing primary security tools..."
-retry pkg install -y nmap sqlmap hydra metasploit hashcat nikto masscan || log_warn "Some security tools failed to install."
+# 5. Security Toolset (Native)
+SEC_PKGS=("nmap" "sqlmap" "hydra" "metasploit" "hashcat" "nikto" "masscan")
+log_info "Installing native security tools..."
+for pkg in "${SEC_PKGS[@]}"; do
+    retry 2 2 pkg install -y "$pkg" || log_warn "Native tool failed: $pkg"
+done
 
-# 3. Security Tool Builds with validation
-log_info "Installing Go-based security tools..."
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOPATH/bin
-mkdir -p "$GOPATH/bin"
-add_to_path "$GOPATH/bin"
+# 6. Go Toolset (Build from Source)
+log_info "Building Go-based security tools..."
+update_env_path "$HOME/go/bin"
+mkdir -p "$HOME/go/bin"
 
-tools=("subfinder" "httpx" "nuclei" "ffuf" "assetfinder" "gospider" "anew" "gf")
-for tool in "${tools[@]}"; do
-    log_info "Building $tool..."
-    # Check if tool already exists to save time
+GO_TOOLS=(
+    "subfinder:github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest"
+    "httpx:github.com/projectdiscovery/httpx/cmd/httpx@latest"
+    "nuclei:github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest"
+    "ffuf:github.com/ffuf/ffuf/v2@latest"
+    "assetfinder:github.com/tomnomnom/assetfinder@latest"
+    "anew:github.com/tomnomnom/anew@latest"
+)
+
+for entry in "${GO_TOOLS[@]}"; do
+    tool="${entry%%:*}"
+    repo="${entry#*:}"
     if ! command -v "$tool" &>/dev/null; then
-        retry go install -v "github.com/projectdiscovery/$tool/v2/cmd/$tool@latest" || \
-        retry go install -v "github.com/tomnomnom/$tool@latest" || \
-        retry go install -v "github.com/ffuf/ffuf/v2@latest" || \
-        log_warn "Failed to install $tool."
+        log_info "Building $tool..."
+        retry 2 5 go install -v "$repo" || log_warn "Failed to build $tool"
     else
-        log_success "$tool is already installed."
+        log_success "$tool is already available."
     fi
 done
 
-# 4. VNC Security Prep
+# 7. Final Configuration & Aesthetic
+log_info "Applying system optimizations..."
+mkdir -p ~/.config/xfce4/xfconf/xfce-perchannel-xml/
+if command -v xfconf-query &>/dev/null; then
+    xfconf-query -c xfwm4 -p /general/use_compositing -s false --create -t bool 2>/dev/null
+    xfconf-query -c xfce4-desktop -p /desktop-icons/style -s 0 --create -t int 2>/dev/null
+fi
+
 log_info "Configuring VNC password..."
 mkdir -p ~/.vnc
 if [ ! -f ~/.vnc/passwd ]; then
     echo "password" | vncpasswd -f > ~/.vnc/passwd
     chmod 600 ~/.vnc/passwd
-    log_success "VNC password set to 'password' (Change with 'vncpasswd')"
+    log_success "VNC password initialized to 'password'"
 fi
 
-# 4. XFCE Optimization with health checks
-log_info "Optimizing XFCE..."
-mkdir -p ~/.config/xfce4/xfconf/xfce-perchannel-xml/
-command -v xfconf-query >/dev/null && {
-    xfconf-query -c xfwm4 -p /general/use_compositing -s false --create -t bool || log_warn "Failed to set compositing."
-    xfconf-query -c xfce4-desktop -p /desktop-icons/style -s 0 --create -t int || log_warn "Failed to set desktop icons."
-}
-
-# 5. Asset validation and setup
-log_info "Setting up Burp Suite..."
-[ ! -f "burpsuite.jar" ] && retry wget -qO burpsuite.jar "https://portswigger-cdn.net/burp/releases/download?product=community&version=2024.2.1&type=Jar"
-if validate_file "burpsuite.jar"; then
-    echo -e '#!/bin/bash\njava -jar '"$(pwd)"'/burpsuite.jar "$@"' > "$PREFIX/bin/burpsuite"
-    chmod +x "$PREFIX/bin/burpsuite"
-fi
-
-log_info "Fetching Wallpaper..."
+log_info "Fetching custom assets..."
 mkdir -p ~/Pictures
-retry wget -qO ~/Pictures/cyberos-wallpaper.jpg "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=1920&h=1080"
-validate_file "$HOME/Pictures/cyberos-wallpaper.jpg" || log_warn "Wallpaper fetch failed."
+retry 3 5 wget -qO ~/Pictures/cyberos-wallpaper.jpg "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=1920&h=1080"
 
-log_info "CyberOS setup complete with resilience checks."
-echo "[>] Launch using ./CyberOS [port]"
+log_success "CyberOS 2.0 Hardened Installation Complete!"
+log_info "Run './CyberOS [port]' to begin your session."

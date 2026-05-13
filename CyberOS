@@ -1,66 +1,83 @@
 #!/bin/bash
+# ==============================================================================
+# CyberOS Launcher - Self-Healing Session Manager
+# ==============================================================================
 
-# CyberOS VNC Launcher
-# Dynamically locate the base path of the repo
 CYBEROS_BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$CYBEROS_BASE/lib/utils.sh"
 
-log_info "Checking for CyberOS updates..."
-git -C "$CYBEROS_BASE" pull --quiet || log_error "Could not fetch updates. Continuing..."
+log_info "Initializing CyberOS Environment..."
 
-if [ -z "$1" ]; then
-    log_error "No port specified. Usage: ./CyberOS [port]"
-    exit 1
-fi
+# 1. Update Check
+git -C "$CYBEROS_BASE" pull --quiet &>/dev/null || log_warn "Auto-update check failed. Skipping."
 
+# 2. Input Validation
 PORT=$1
-# Ensure port is numeric
-if [ ! "$PORT" -ge 0 ] 2>/dev/null; then
-    log_error "Port must be a number."
+if [ -z "$PORT" ] || ! [[ "$PORT" =~ ^[0-9]+$ ]]; then
+    log_error "Usage: ./CyberOS [port]"
+    log_info "Example: ./CyberOS 5901"
     exit 1
 fi
 
-# Map port to VNC display number
+# 3. Environment Sanitization
 DISPLAY_NUM=$((PORT - 5900))
 [ "$DISPLAY_NUM" -lt 0 ] && DISPLAY_NUM=$PORT
 
-# 1. Dependency check
-check_dependency vncserver || exit 1
-check_dependency lsof || { log_error "lsof is required. Run wizard setup."; exit 1; }
+# Verify dependencies
+ESSENTIALS=("vncserver" "xfce4-session" "lsof")
+for tool in "${ESSENTIALS[@]}"; do
+    if ! command -v "$tool" &>/dev/null; then
+        log_error "Critical tool '$tool' is missing."
+        log_info "Attempting automated repair..."
+        ./setup.sh || { log_error "Self-repair failed. Run ./wizard.sh manually."; exit 1; }
+        break
+    fi
+done
 
-# 2. VNC Password check
-if [ ! -f ~/.vnc/passwd ]; then
-    log_warn "VNC password not found. Creating default 'password'..."
-    mkdir -p ~/.vnc
-    echo "password" | vncpasswd -f > ~/.vnc/passwd
-    chmod 600 ~/.vnc/passwd
-fi
-
-log_info "Starting CyberOS on port $PORT (Display :$DISPLAY_NUM)..."
-
-# 3. Handle existing sessions
-if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
-    log_warn "A service is already listening on port $PORT."
-    read -p "[?] Kill existing VNC session :$DISPLAY_NUM? (y/n): " confirm
-    if [ "$confirm" = "y" ]; then
-        vncserver -kill :$DISPLAY_NUM &>/dev/null
+# 4. Session Recovery & Conflict Resolution
+if is_port_open "$PORT"; then
+    log_warn "Port $PORT is already in use."
+    read -p "[?] Kill existing VNC session on display :$DISPLAY_NUM? (y/N): " confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        log_info "Cleaning display :$DISPLAY_NUM..."
+        vncserver -kill :"$DISPLAY_NUM" &>/dev/null
+        rm -rf /tmp/.X"$DISPLAY_NUM"-lock /tmp/.X11-unix/X"$DISPLAY_NUM" &>/dev/null
         sleep 1
     else
-        log_info "Aborting startup."
+        log_info "Exiting to prevent session corruption."
         exit 0
     fi
 fi
 
-# 4. Initialize VNC Server
-log_info "Initializing VNC server..."
-vncserver :$DISPLAY_NUM -depth 24 -name "CyberOS" &>/dev/null
+# 5. Launch Protocol
+log_info "Launching CyberOS on port $PORT (Display :$DISPLAY_NUM)..."
 
-# 5. Health Verification
-sleep 3
-if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
-    log_success "BOOM! CyberOS is live."
-    echo -e "[>] Connect your VNC viewer to localhost:$PORT"
-else
-    log_error "VNC server failed to start on port $PORT. Check ~/.vnc/*.log"
-    exit 1
-fi
+# Ensure VNC password exists
+[ ! -f ~/.vnc/passwd ] && {
+    log_warn "VNC password missing. Generating default 'password'..."
+    mkdir -p ~/.vnc
+    echo "password" | vncpasswd -f > ~/.vnc/passwd
+    chmod 600 ~/.vnc/passwd
+}
+
+# Start VNC Server with standard parameters for universal compatibility
+vncserver :"$DISPLAY_NUM" -depth 24 -name "CyberOS" -localhost no &>/dev/null
+
+# 6. Health Verification Loop
+log_info "Verifying session integrity..."
+for i in {1..5}; do
+    if is_port_open "$PORT"; then
+        log_success "CYBEROS IS LIVE!"
+        echo -e "${CYAN}--------------------------------------------------${NC}"
+        echo -e "${GREEN}VNC Address:${NC} localhost:$PORT"
+        echo -e "${GREEN}Display:${NC}     :$DISPLAY_NUM"
+        echo -e "${GREEN}Password:${NC}    password (default)"
+        echo -e "${CYAN}--------------------------------------------------${NC}"
+        exit 0
+    fi
+    sleep 1
+done
+
+log_error "VNC Server failed to bind to port $PORT."
+log_info "Check logs at: ~/.vnc/localhost:$DISPLAY_NUM.log"
+exit 1
