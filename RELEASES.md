@@ -1,44 +1,61 @@
-# CyberOS Comprehensive Release Manifest
+# CyberOS Version History (14+ Milestone Manifest)
 
-This document records the complete, granular evolutionary history of CyberOS.
+A granular record of the iterative refinement, hardening, and growth of the CyberOS ecosystem.
 
 ---
 
-### v2.0.1 (Phase X: Autonomous Resilience)
-- **Autonomous Doctor Engine:** Proactive health scans on boot (lock cleanup, permission sync).
-- **Engine Stability Watchdog:** Real-time VNC core monitoring during startup.
-- **Wizard Repair Sector:** One-click recovery utility for environment drift.
-- **Environment Hermeticism:** Isolated `lib/env.sh` management.
+### v2.0.1 (Phase X: Perfection Loop)
+- **Autonomous Resilience:** Added "Autonomous Doctor" engine for self-healing and VNC engine watchdog.
+- **Cycle Hardening:** Five-cycle deep audit focusing on POSIX compliance, resource discipline, and hermetic environments.
 
 ### v2.0.0 (The System Overhaul)
-- **POSIX Standardization:** Full migration to POSIX shell compliance.
-- **Management Console (Wizard):** Professional TUI interface for lifecycle management.
-- **Manifest-Driven Setup:** Refactored `setup.sh` for fail-safe deployments.
-- **Centralized Truth:** Migration of all variables to `lib/config.sh`.
-- **Cyberpunk Aesthetics:** Custom theme/wallpaper injection.
+- **Full Refactor:** Migration to POSIX-compliant shell logic.
+- **Management Console:** Deployment of the `wizard.sh` TUI.
+- **Config Centralization:** Migration to `lib/config.sh`.
+- **Aesthetic Core:** High-fidelity theme and wallpaper injection.
 
-### v1.4.0 (Security & Performance Hardening)
-- **Resource Discipline:** Automated reaping of heavy processes (Metasploit, Burp Suite).
-- **Environment Isolation:** Unified environment variable management.
-- **Security Matrix:** Strict owner-only filesystem permissions.
+### v1.9.0 (Stability Phase IX-VIII)
+- **Integrity Validation:** Automated binary integrity checks during installation.
+- **Centralized Ops:** Unified environment variable management via `lib/env.sh`.
 
-### v1.3.0 (Advanced Reconnaissance & Toolchains)
-- **Go Ecosystem:** Automated compilation/installation of projectdiscovery suite (Nuclei, Subfinder, etc.).
-- **Unstable Repo Integration:** Enabled deep access to cutting-edge security tools.
-- **Performance:** Optimized VNC display depth and desktop compositing settings.
+### v1.8.0 (Resilience Phase VII-VI)
+- **Diagnostics:** Implementation of disk space and network pre-flight checks.
+- **Resource Management:** Advanced log rotation and artifact cleanup.
 
-### v1.2.0 (UX & Dashboard Integration)
-- **Next.js Hub:** Initial implementation of the CyberOS web-based hunting dashboard.
-- **Health Diagnostic Suite:** Automatic detection of missing dependencies and disk space alerts.
-- **Standardization:** Adoption of `Makefile` for universal task automation.
+### v1.7.0 (Professional Standardization Phase V)
+- **Policy Hardening:** Introduction of `SECURITY.md` and `CONTRIBUTING.md`.
+- **Build Automation:** Integration of professional `Makefile`.
 
-### v1.1.0 (Arsenal Expansion)
-- **Massive Tooling:** Addition of 1GB+ security stack (Metasploit, SQLmap, Hashcat).
-- **UX Refinements:** Persistent desktop wallpaper/theme application logic.
-- **Stability Fixes:** Improved universal client support for VNC.
+### v1.6.0 (Dashboard Integration Phase IV)
+- **Web Portal:** Next.js dashboard integration with custom cyberpunk styling.
+- **Tool Expansion:** Integrated `htop`, `btop`, and advanced recon suites.
 
-### v1.0.0 (Foundation)
-- **Inception:** First stable VNC-powered Linux lab for Termux.
-- **Launcher Engine:** Core `CyberOS` wrapper script for session port management.
-- **Core Arsenal:** Nmap, Hydra, Wireshark base tools.
-- **Documentation:** Initial security practitioner workflow guides.
+### v1.5.0 (Architecture Hardening Phase III)
+- **POSIX Norms:** Enforced strict POSIX shell standards across the codebase.
+- **Fail-safe Logic:** Added robust retry mechanisms for heavy-duty tool installations.
+
+### v1.4.0 (The Go Migration)
+- **Tool Compilation:** Automated building of modern security tools (Nuclei, Subfinder) from source.
+- **Repository Optimization:** Enabled `unstable-repo` for cutting-edge packages.
+
+### v1.3.0 (Installation Logic Refinement)
+- **Path Portability:** Environment-agnostic launcher logic.
+- **Termux Native:** Refactor of installers to use `pkg` instead of sudo patterns.
+
+### v1.2.0 (Arsenal Expansion)
+- **Tool Massive Update:** Initial roll-out of 1GB+ security stack.
+- **Compatibility:** Universal client fixes for diverse VNC protocol implementations.
+
+### v1.1.0 (Aesthetic & UX Foundation)
+- **Persistent UI:** Automated wallpaper and theme persistence in XFCE.
+- **UX Tuning:** Desktop compositing optimizations.
+
+### v1.0.1 (Documentation & Maintenance)
+- **Refinement:** Initial streamlining of documentation and installation guides.
+
+### v1.0.0 (Launcher Launch)
+- **Engine Core:** Birth of the `CyberOS` wrapper script.
+- **Core Arsenal:** Nmap, Hydra, Wireshark integration.
+
+### v0.1.0 (Inception)
+- **Boilerplate:** Initialization of the CyberOS structure using the Next.js foundation and initial project scaffolding.
