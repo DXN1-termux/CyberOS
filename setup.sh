@@ -53,10 +53,17 @@ mkdir -p ~/.vnc
 cat << 'EOF' > ~/.vnc/xstartup
 #!/bin/bash
 xrdb $HOME/.Xresources
+# Ensure XFCE loads with a clean slate
 startxfce4 &
 
-# Wait for XFCE to start, then set custom wallpaper
-(sleep 5 && xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image -s "$HOME/Pictures/cyberos-wallpaper.jpg" --create -t string) &
+# Wait for XFCE to initialize the session, then apply custom theme settings
+(sleep 8 && 
+    # Set Wallpaper
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image -s "$HOME/Pictures/cyberos-wallpaper.jpg" --create -t string &&
+    # Enable Cyberpunk transparency/theme tweaks
+    xfconf-query -c xfwm4 -p /general/theme -s "Adwaita-dark" --create -t string &&
+    # Refresh Desktop
+    xfdesktop --reload) &
 EOF
 chmod +x ~/.vnc/xstartup
 
