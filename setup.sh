@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# CyberOS Setup - Resilient Manifest-Based Installer
+# CyberOS Setup - Resilient Manifest-Based Installer (Perfected)
 # ==============================================================================
 
 CYBEROS_BASE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -15,11 +15,11 @@ check_internet || exit 1
 # 2. Repository Management
 log_info "Initializing repositories..."
 retry 3 5 pkg update -y
-retry 3 2 pkg install -y x11-repo unstable-repo || log_warn "Optional repos might have failed."
+pkg install -y x11-repo unstable-repo
 retry 3 5 pkg update -y
 
-# 3. Core System Manifest
-CORE_PKGS="wget curl git tmux python golang openjdk-17 nodejs net-tools lsof proot zip unzip"
+# 3. Core System Manifest (Expanded)
+CORE_PKGS="wget curl git tmux python golang openjdk-17 nodejs net-tools lsof proot zip unzip htop btop nano vim"
 
 log_info "Installing core system packages..."
 for pkg in $CORE_PKGS; do
@@ -52,7 +52,6 @@ log_info "Building Go-based security tools..."
 update_env_path "$HOME/go/bin"
 mkdir -p "$HOME/go/bin"
 
-# Go tools in space-separated format (tool:repo)
 GO_TOOLS="subfinder:github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest \
 httpx:github.com/projectdiscovery/httpx/cmd/httpx@latest \
 nuclei:github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest \
@@ -85,7 +84,7 @@ for tool in $ALL_TOOLS; do
 done
 
 if [ "$MISSING_COUNT" -eq 0 ]; then
-    log_success "PERFECT INSTALL: All $ALL_TOOLS verified."
+    log_success "PERFECT INSTALL: All tools verified."
 else
     log_warn "Installation finished with $MISSING_COUNT missing tools."
 fi
@@ -98,13 +97,42 @@ if command -v xfconf-query &>/dev/null; then
     xfconf-query -c xfce4-desktop -p /desktop-icons/style -s 0 --create -t int 2>/dev/null
 fi
 
-log_info "Configuring VNC password..."
+log_info "Configuring VNC Security & Desktop Environment..."
 mkdir -p ~/.vnc
 if [ ! -f ~/.vnc/passwd ]; then
     echo "password" | vncpasswd -f > ~/.vnc/passwd
     chmod 600 ~/.vnc/passwd
     log_success "VNC password initialized to 'password'"
 fi
+
+# Modernized xstartup for peak stability
+cat << 'EOF' > ~/.vnc/xstartup
+#!/bin/bash
+xrdb $HOME/.Xresources
+if command -v dbus-launch >/dev/null; then
+    eval $(dbus-launch --sh-syntax --exit-with-session)
+fi
+startxfce4 &
+(sleep 8 && 
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image -s "$HOME/Pictures/cyberos-wallpaper.jpg" --create -t string
+    xfconf-query -c xfwm4 -p /general/theme -s "Adwaita-dark" --create -t string
+    xfdesktop --reload
+    mkdir -p ~/Desktop
+    cat << 'EOD' > ~/Desktop/CyberOS-Dashboard.desktop
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=CyberOS Dashboard
+Comment=Launch the Web-based Hunting Hub
+Exec=firefox http://localhost:3000
+Icon=globe
+Terminal=false
+StartupNotify=false
+EOD
+    chmod +x ~/Desktop/CyberOS-Dashboard.desktop
+) &
+EOF
+chmod +x ~/.vnc/xstartup
 
 log_info "Fetching custom assets..."
 mkdir -p ~/Pictures
