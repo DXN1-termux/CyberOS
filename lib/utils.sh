@@ -96,30 +96,54 @@ update_env_path() {
     export PATH="$PATH:$entry"
 }
 
-# Disk Space Verification
-check_disk_space() {
-    local required="${1:-2000}"
-    # Use df -m and ensure we get the correct column even if output is wrapped
-    local available
-    available=$(df -m . | awk 'END {print $4}')
-    
-    if [ "$available" -lt "$required" ]; then
-        log_error "Insufficient storage. Available: ${available}MB, Required: ${required}MB"
-        return 1
-    fi
-    log_success "Storage check passed: ${available}MB available."
-    return 0
+# ==============================================================================
+# CyberOS Utility Library - High-Fidelity Infrastructure (Perfection Loop 1/5)
+# ==============================================================================
+
+# Unified Logging - Standardized for machine-readable auditing
+log_level() { echo -e "$(date +'%Y-%m-%dT%H:%M:%S%z') [$1] $2"; }
+log_info()  { log_level "INFO" "$1"; }
+log_warn()  { log_level "WARN" "$1"; }
+log_error() { log_level "ERR " "$1" >&2; }
+log_step()  { echo -e "\n\e[1;36m==> $1\e[0m"; }
+log_success() { log_level "SUCC" "$1"; }
+
+# Fail-safe command wrapper
+retry() {
+    local max=$1; shift
+    local delay=$1; shift
+    local count=0
+    until "$@"; do
+        count=$((count + 1))
+        [ $count -lt "$max" ] || return 1
+        sleep "$delay"
+    done
 }
 
-# Resource Integrity Check
-validate_installation() {
-    log_info "Verifying core binary integrity..."
-    local critical="vncserver xfce4-session lsof git node"
-    for tool in $critical; do
-        if ! command -v "$tool" >/dev/null 2>&1; then
-            log_error "Critical tool integrity failure: $tool not found."
-            return 1
-        fi
-    done
-    return 0
+# Hardened Permission Matrix
+harden_project() {
+    log_info "Locking down project filesystem..."
+    # Set directory to 700, files to 600
+    find "$CYBEROS_BASE" -type d -exec chmod 700 {} +
+    find "$CYBEROS_BASE" -type f -name "*.sh" -exec chmod 700 {} +
+    find "$CYBEROS_BASE" -type f ! -name "*.sh" -exec chmod 600 {} +
+    log_success "Project filesystem integrity hardened."
+}
+
+# Dependency Integrity
+ensure_dep() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        log_info "Installing missing dependency: $1"
+        pkg install -y "$1" >/dev/null 2>&1 || return 1
+    fi
+}
+
+# Network Health
+check_internet() {
+    ping -c 1 8.8.8.8 >/dev/null 2>&1
+}
+
+# Port Management (Non-Bashism)
+is_port_open() {
+    netstat -tuln | grep -q ":$1 "
 }
