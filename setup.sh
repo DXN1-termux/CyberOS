@@ -12,8 +12,8 @@ log_info "Welcome to CyberOS Setup (Termux)"
 log_info "Updating system and installing base dependencies..."
 retry pkg update -y
 retry pkg install -y xfce4 xfce4-goodies tigervnc firefox wireshark-qt openjdk-17 \
-    wget curl net-tools nmap sqlmap hydra tmux git python golang \
-    metasploit hashcat gimp nikto masscan || { log_error "Base package installation failed."; exit 1; }
+    wget curl net-tools nmap tmux git python golang \
+    gimp || { log_error "Base package installation failed."; exit 1; }
 
 # 3. Security Tool Builds with validation
 log_info "Installing security tools..."
