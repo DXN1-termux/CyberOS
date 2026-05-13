@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# CyberOS Utility Library - Core Logic & Resilience
+# CyberOS Utility Library - Core Logic & Resilience (Perfected)
 # ==============================================================================
 
 # ANSI Colors
@@ -16,11 +16,12 @@ log_info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 log_warn()    { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_error()   { echo -e "${RED}[ERROR]${NC} $1"; }
+log_step()    { echo -e "\n${CYAN}>>> $1${NC}"; }
 
 # Internet connectivity check
 check_internet() {
     log_info "Checking internet connectivity..."
-    if ! ping -c 1 8.8.8.8 &>/dev/null; then
+    if ! ping -c 1 8.8.8.8 >/dev/null 2>&1; then
         log_error "No internet connection detected. Please check your network."
         return 1
     fi
@@ -28,7 +29,6 @@ check_internet() {
 }
 
 # Advanced Retry Mechanism
-# Usage: retry <max_attempts> <delay> <command...>
 retry() {
     local max="$1"; shift
     local delay="$1"; shift
@@ -52,11 +52,11 @@ is_port_open() {
     lsof -Pi :"$1" -sTCP:LISTEN -t >/dev/null 2>&1
 }
 
-# Dependency Manager (Auto-Install)
+# Dependency Manager
 ensure_dep() {
     local dep=$1
     local pkg=${2:-$dep}
-    if ! command -v "$dep" &>/dev/null; then
+    if ! command -v "$dep" >/dev/null 2>&1; then
         log_info "Missing dependency: $dep. Attempting installation..."
         pkg install -y "$pkg" || {
             log_error "Failed to install $pkg. Manual intervention required."
@@ -66,17 +66,25 @@ ensure_dep() {
     return 0
 }
 
-# Path Management
+# Persistent environment configuration (Refined for Isolation)
 update_env_path() {
     local entry=$1
-    if ! grep -q "$entry" ~/.bashrc 2>/dev/null; then
-        echo "export PATH=\$PATH:$entry" >> ~/.bashrc
-        log_success "Added $entry to PATH in ~/.bashrc"
+    local env_file="${CYBEROS_BASE}/lib/env.sh"
+    mkdir -p "$(dirname "$env_file")"
+    touch "$env_file"
+    if ! grep -q "$entry" "$env_file" 2>/dev/null; then
+        echo "export PATH=\$PATH:$entry" >> "$env_file"
+        log_info "Registered $entry in CyberOS environment."
+    fi
+    # Ensure source link in ~/.bashrc
+    if ! grep -q "source $env_file" ~/.bashrc 2>/dev/null; then
+        echo "[ -f \"$env_file\" ] && . \"$env_file\"" >> ~/.bashrc
+        log_success "Integrated CyberOS environment with shell profile."
     fi
     export PATH="$PATH:$entry"
 }
 
-# Disk Space Verification (Requirement in MB)
+# Disk Space Verification
 check_disk_space() {
     local required=$1
     local available=$(df -m . | awk 'NR==2 {print $4}')
