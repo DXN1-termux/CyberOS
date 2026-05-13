@@ -48,6 +48,7 @@ launch_session() {
         case "$confirm" in
             [Yy]*)
                 log_info "Terminating display :"$display_num"..."
+trap "vncserver -kill :${display_num}; exit 0" SIGTERM SIGINT
                 vncserver -kill :"$display_num" >/dev/null 2>&1
                 rm -rf /tmp/.X"$display_num"-lock /tmp/.X11-unix/X"$display_num" >/dev/null 2>&1
                 sleep 2
@@ -72,6 +73,7 @@ launch_session() {
     
     # Engine Launch
     log_info "Igniting XFCE Core..."
+trap "vncserver -kill :${display_num}; exit 0" SIGTERM SIGINT
     vncserver :"$display_num" \
         -geometry "$DEFAULT_VNC_GEOMETRY" \
         -depth "$DEFAULT_VNC_DEPTH" \
