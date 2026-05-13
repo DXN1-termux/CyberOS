@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # ==============================================================================
 # CyberOS Environment Isolation - Perfection v10
 # ==============================================================================
@@ -6,7 +7,7 @@
 # 1. Path Management
 # Prevent duplicate entries in PATH
 add_to_path() {
-    if [[ ":$PATH:" != *":$1:"* ]]; then
+    if [ ":$PATH:" != *":$1:"* ]; then
         export PATH="$1:$PATH"
     fi
 }
