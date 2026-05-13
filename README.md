@@ -71,9 +71,12 @@ Connect your favorite VNC viewer to `localhost:5901`.
 
 ---
 
-## 🛡 Security & Compliance
+## 🌐 Universal Compatibility
 
-CyberOS is designed for authorized security testing and educational purposes. Always operate within the scope of your target's bug bounty program.
+CyberOS is built on open standards, ensuring compatibility with virtually every VNC viewer and terminal emulator available:
+
+- **Supported VNC Viewers:** RealVNC, TightVNC, TigerVNC, UltraVNC, TurboVNC, and mobile clients like VNC Viewer for Android/iOS.
+- **Supported Terminals:** Seamlessly works with XFCE Terminal, Konsole, GNOME Terminal, Alacritty, and any other terminal emulator installed within the XFCE session.
 
 ---
 
