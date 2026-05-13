@@ -105,3 +105,4 @@ launch_session() {
 header
 autonomous_doctor
 launch_session "${1:-$DEFAULT_VNC_PORT}"
+exit 0
