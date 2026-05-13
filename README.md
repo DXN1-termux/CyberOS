@@ -67,12 +67,27 @@ Connect any standard VNC viewer to `localhost:5901`.
 
 ---
 
-## 🛠 Project Structure
-- `CyberOS`: Main launcher script with automatic update checks and VNC health verification.
-- `wizard.sh`: Interactive CLI menu for maintenance and setup.
-- `setup.sh`: Comprehensive, automated dependency installer.
-- `lib/`: Centralized utility library.
-- `hooks/`: Extensible area for custom scripts.
+## 🛠 Technical Stack
+- **Base:** Termux (Android/Linux)
+- **Desktop:** XFCE4 (Lightweight, Modular)
+- **Display:** TigerVNC (Standard Protocol)
+- **Shell:** POSIX-compliant Dash/Bash/Zsh
+- **Build Engine:** Golang (for ProjectDiscovery & Tomnomnom tools)
+- **Security:** Metasploit, Nmap, SQLMap, and more.
+
+---
+
+## 🔍 Troubleshooting
+- **VNC Connection Refused:** Ensure the port (e.g., 5901) matches your viewer and that the `CyberOS` script reported a successful launch.
+- **Tools Not Found:** Run Option `[2]` in `wizard.sh` to verify your environment path and dependencies.
+- **Slow GUI:** CyberOS automatically disables compositing to save resources, but ensure your VNC viewer is set to "Low Latency" or "High Speed" mode.
+- **Metasploit Fails:** Metasploit requires substantial memory; ensure at least 2GB of RAM is available during installation.
+
+---
+
+## 📜 Version History
+- **v2.0 (Stable):** Total system overhaul. POSIX compliance, self-healing launcher, TUI management wizard, and deep tool verification.
+- **v1.x:** Initial VNC-powered security lab.
 
 ---
 

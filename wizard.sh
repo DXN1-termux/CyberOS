@@ -28,32 +28,40 @@ menu() {
 while true; do
     header
     menu
-    read -p "Select choice [0-5]: " opt
+    printf "Select choice [0-5]: "
+    read -r opt
 
-    case $opt in
+    case "$opt" in
         1)
             log_info "Initiating Full Installation..."
             bash "$CYBEROS_BASE/setup.sh"
-            read -p "Press enter to return to menu..."
+            printf "Press enter to return to menu..."
+            read -r _
             ;;
         2)
             log_info "Running Deep Diagnostics..."
-            tools=("vncserver" "xfce4-session" "nmap" "git" "python" "go" "lsof")
+            # Check for critical tools
+            tools="vncserver xfce4-session nmap git python go lsof"
             failures=0
-            for tool in "${tools[@]}"; do
-                if command -v "$tool" &>/dev/null; then
+            for tool in $tools; do
+                if command -v "$tool" >/dev/null 2>&1; then
                     log_success "Found: $tool"
                 else
                     log_error "Missing: $tool"
-                    ((failures++))
+                    failures=$((failures + 1))
                 fi
             done
-            [ $failures -eq 0 ] && log_success "All systems operational." || log_warn "$failures issues detected."
-            read -p "Press enter to return to menu..."
+            if [ "$failures" -eq 0 ]; then
+                log_success "All systems operational."
+            else
+                log_warn "$failures issues detected."
+            fi
+            printf "Press enter to return to menu..."
+            read -r _
             ;;
         3)
             log_info "Cleaning temporary build artifacts..."
-            rm -rf "$HOME/go/pkg" ~/.cache/go-build 2>/dev/null
+            rm -rf "$HOME/go/pkg" ~/.cache/go-build >/dev/null 2>&1
             log_success "Cleanup complete. Storage recovered."
             sleep 2
             ;;
@@ -65,9 +73,10 @@ while true; do
             ;;
         5)
             header
-            cat "$CYBEROS_BASE/README.md" | head -n 50
+            head -n 50 "$CYBEROS_BASE/README.md"
             echo -e "\n... (Scroll up for more) ..."
-            read -p "Press enter to return to menu..."
+            printf "Press enter to return to menu..."
+            read -r _
             ;;
         0)
             log_info "Shutting down Management Console. Stay safe."

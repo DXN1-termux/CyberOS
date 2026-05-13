@@ -19,31 +19,25 @@ retry 3 2 pkg install -y x11-repo unstable-repo || log_warn "Optional repos migh
 retry 3 5 pkg update -y
 
 # 3. Core System Manifest
-CORE_PKGS=(
-    "wget" "curl" "git" "tmux" "python" "golang" 
-    "openjdk-17" "net-tools" "lsof" "proot" "zip" "unzip"
-)
+CORE_PKGS="wget curl git tmux python golang openjdk-17 net-tools lsof proot zip unzip"
 
 log_info "Installing core system packages..."
-for pkg in "${CORE_PKGS[@]}"; do
+for pkg in $CORE_PKGS; do
     ensure_dep "$pkg" || log_warn "Failed to install core package: $pkg"
 done
 
 # 4. GUI Environment Manifest
-GUI_PKGS=(
-    "xfce4" "xfce4-goodies" "tigervnc" "firefox" 
-    "wireshark-qt" "gimp" "adwaita-icon-theme"
-)
+GUI_PKGS="xfce4 xfce4-goodies tigervnc firefox wireshark-qt gimp adwaita-icon-theme"
 
 log_info "Installing desktop environment..."
-for pkg in "${GUI_PKGS[@]}"; do
+for pkg in $GUI_PKGS; do
     retry 3 2 pkg install -y "$pkg" || log_warn "GUI component failed: $pkg"
 done
 
 # 5. Security Toolset (Native)
-SEC_PKGS=("nmap" "sqlmap" "hydra" "metasploit" "hashcat" "nikto" "masscan")
+SEC_PKGS="nmap sqlmap hydra metasploit hashcat nikto masscan"
 log_info "Installing native security tools..."
-for pkg in "${SEC_PKGS[@]}"; do
+for pkg in $SEC_PKGS; do
     retry 2 2 pkg install -y "$pkg" || log_warn "Native tool failed: $pkg"
 done
 
@@ -52,25 +46,43 @@ log_info "Building Go-based security tools..."
 update_env_path "$HOME/go/bin"
 mkdir -p "$HOME/go/bin"
 
-GO_TOOLS=(
-    "subfinder:github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest"
-    "httpx:github.com/projectdiscovery/httpx/cmd/httpx@latest"
-    "nuclei:github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest"
-    "ffuf:github.com/ffuf/ffuf/v2@latest"
-    "assetfinder:github.com/tomnomnom/assetfinder@latest"
-    "anew:github.com/tomnomnom/anew@latest"
-)
+# Go tools in space-separated format (tool:repo)
+GO_TOOLS="subfinder:github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest \
+httpx:github.com/projectdiscovery/httpx/cmd/httpx@latest \
+nuclei:github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest \
+ffuf:github.com/ffuf/ffuf/v2@latest \
+assetfinder:github.com/tomnomnom/assetfinder@latest \
+anew:github.com/tomnomnom/anew@latest"
 
-for entry in "${GO_TOOLS[@]}"; do
-    tool="${entry%%:*}"
-    repo="${entry#*:}"
-    if ! command -v "$tool" &>/dev/null; then
+for entry in $GO_TOOLS; do
+    tool=$(echo "$entry" | cut -d: -f1)
+    repo=$(echo "$entry" | cut -d: -f2)
+    if ! command -v "$tool" >/dev/null 2>&1; then
         log_info "Building $tool..."
         retry 2 5 go install -v "$repo" || log_warn "Failed to build $tool"
     else
         log_success "$tool is already available."
     fi
 done
+
+# Deep Verification Phase
+log_info "Running final tool verification..."
+ALL_TOOLS="nmap sqlmap hydra msfconsole hashcat nikto masscan subfinder httpx nuclei ffuf assetfinder anew"
+MISSING_COUNT=0
+for tool in $ALL_TOOLS; do
+    if command -v "$tool" >/dev/null 2>&1; then
+        log_success "Verified: $tool"
+    else
+        log_warn "Verification failed: $tool"
+        MISSING_COUNT=$((MISSING_COUNT + 1))
+    fi
+done
+
+if [ "$MISSING_COUNT" -eq 0 ]; then
+    log_success "PERFECT INSTALL: All $ALL_TOOLS verified."
+else
+    log_warn "Installation finished with $MISSING_COUNT missing tools."
+fi
 
 # 7. Final Configuration & Aesthetic
 log_info "Applying system optimizations..."

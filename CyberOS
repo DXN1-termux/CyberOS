@@ -12,8 +12,8 @@ log_info "Initializing CyberOS Environment..."
 git -C "$CYBEROS_BASE" pull --quiet &>/dev/null || log_warn "Auto-update check failed. Skipping."
 
 # 2. Input Validation
-PORT=$1
-if [ -z "$PORT" ] || ! [[ "$PORT" =~ ^[0-9]+$ ]]; then
+PORT="$1"
+if [ -z "$PORT" ] || ! [ "$PORT" -eq "$PORT" ] 2>/dev/null; then
     log_error "Usage: ./CyberOS [port]"
     log_info "Example: ./CyberOS 5901"
     exit 1
@@ -21,15 +21,15 @@ fi
 
 # 3. Environment Sanitization
 DISPLAY_NUM=$((PORT - 5900))
-[ "$DISPLAY_NUM" -lt 0 ] && DISPLAY_NUM=$PORT
+if [ "$DISPLAY_NUM" -lt 0 ]; then DISPLAY_NUM="$PORT"; fi
 
 # Verify dependencies
-ESSENTIALS=("vncserver" "xfce4-session" "lsof")
-for tool in "${ESSENTIALS[@]}"; do
-    if ! command -v "$tool" &>/dev/null; then
+ESSENTIALS="vncserver xfce4-session lsof"
+for tool in $ESSENTIALS; do
+    if ! command -v "$tool" >/dev/null 2>&1; then
         log_error "Critical tool '$tool' is missing."
         log_info "Attempting automated repair..."
-        ./setup.sh || { log_error "Self-repair failed. Run ./wizard.sh manually."; exit 1; }
+        bash "$CYBEROS_BASE/setup.sh" || { log_error "Self-repair failed. Run ./wizard.sh manually."; exit 1; }
         break
     fi
 done
@@ -37,16 +37,20 @@ done
 # 4. Session Recovery & Conflict Resolution
 if is_port_open "$PORT"; then
     log_warn "Port $PORT is already in use."
-    read -p "[?] Kill existing VNC session on display :$DISPLAY_NUM? (y/N): " confirm
-    if [[ "$confirm" =~ ^[Yy]$ ]]; then
-        log_info "Cleaning display :$DISPLAY_NUM..."
-        vncserver -kill :"$DISPLAY_NUM" &>/dev/null
-        rm -rf /tmp/.X"$DISPLAY_NUM"-lock /tmp/.X11-unix/X"$DISPLAY_NUM" &>/dev/null
-        sleep 1
-    else
-        log_info "Exiting to prevent session corruption."
-        exit 0
-    fi
+    printf "[?] Kill existing VNC session on display :$DISPLAY_NUM? (y/N): "
+    read -r confirm
+    case "$confirm" in
+        [Yy]*)
+            log_info "Cleaning display :$DISPLAY_NUM..."
+            vncserver -kill :"$DISPLAY_NUM" >/dev/null 2>&1
+            rm -rf /tmp/.X"$DISPLAY_NUM"-lock /tmp/.X11-unix/X"$DISPLAY_NUM" >/dev/null 2>&1
+            sleep 1
+            ;;
+        *)
+            log_info "Aborting startup to prevent session corruption."
+            exit 0
+            ;;
+    esac
 fi
 
 # 5. Launch Protocol

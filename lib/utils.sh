@@ -30,15 +30,15 @@ check_internet() {
 # Advanced Retry Mechanism
 # Usage: retry <max_attempts> <delay> <command...>
 retry() {
-    local max=$1; shift
-    local delay=$1; shift
+    local max="$1"; shift
+    local delay="$1"; shift
     local n=1
     while true; do
         "$@" && break || {
-            if [ $n -lt $max ]; then
+            if [ "$n" -lt "$max" ]; then
                 log_warn "Command failed. Attempt $n/$max. Retrying in ${delay}s..."
-                sleep $delay
-                ((n++))
+                sleep "$delay"
+                n=$((n + 1))
             else
                 log_error "Command failed after $max attempts."
                 return 1
