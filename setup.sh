@@ -18,11 +18,18 @@ elif [ -x "$(command -v pacman)" ]; then
     sudo pacman -Sy --noconfirm \
         xfce4 xfce4-goodies tigervnc firefox wireshark-qt jre-openjdk \
         wget curl net-tools nmap sqlmap gobuster dirb hydra \
-        john aircrack-ng tmux git python-pip
+        john aircrack-ng tmux git python-pip \
+        subfinder httpx nuclei
 else
     echo -e "\033[1;31m[-] Unsupported OS or package manager. Manual install required.\033[0m"
     exit 1
 fi
+
+echo -e "\033[1;34m[+] Optimizing XFCE for performance...\033[0m"
+mkdir -p ~/.config/xfce4/xfconf/xfce-perchannel-xml/
+# Disable compositing and desktop icons to save resources
+xfconf-query -c xfwm4 -p /general/use_compositing -s false --create -t bool
+xfconf-query -c xfce4-desktop -p /desktop-icons/style -s 0 --create -t int
 
 echo -e "\033[1;34m[+] Setting up Burp Suite Community Edition...\033[0m"
 if [ ! -f "burpsuite.jar" ]; then

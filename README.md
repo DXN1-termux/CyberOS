@@ -1,44 +1,82 @@
-# CyberOS
+<h1 align="center">CyberOS</h1>
+<p align="center">
+  <b>MADE WITH ❤️ BY DXN1</b>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Version-0.42.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Platform-Termux-brightgreen.svg" alt="Platform">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+  <img src="https://img.shields.io/badge/Status-Stable-brightgreen.svg" alt="Status">
+</p>
 
 CyberOS is a zero-hassle, fully loaded VNC-powered Linux distribution optimized for serious bug bounty hunting, penetration testing, and heavy-duty recon. It ships out-of-the-box with a custom-themed XFCE desktop environment and an extensive arsenal of industry-standard tools.
 
 Built for security professionals and students, CyberOS completely removes the headache of setting up a remote GUI environment and installing toolchains so you can focus entirely on the target.
 
+---
+
 ## 🚀 Features
 
-- **Instant VNC Setup:** Launch a fully functional XFCE desktop accessible via VNC on any port of your choosing.
-- **Custom Cyberpunk Aesthetic:** Ships with a custom hacker-themed wallpaper and beautifully configured XFCE desktop to keep you in the zone.
+- **Instant VNC Setup:** Launch a fully functional XFCE desktop accessible via VNC.
+- **Custom Cyberpunk Aesthetic:** Ships with a custom hacker-themed wallpaper and beautifully configured XFCE desktop.
 - **The Ultimate Security Arsenal:** Pre-configured with a massive suite of tools including:
   - **Web Exploitation:** Burp Suite, SQLmap, Wfuzz
-  - **Recon & Enumeration:** Nmap, Gobuster, Dirb
+  - **Recon & Enumeration:** Nmap, Gobuster, Dirb, Subfinder, Httpx, Nuclei
   - **Networking:** Wireshark, Net-tools
   - **Brute Forcing:** Hydra, John the Ripper, SecLists
   - **Daily Drivers:** Firefox (proxied), Tmux, Git
-- **Lightweight & Fast:** Minimal overhead, optimized for performance on remote VPS instances or local VMs.
-- **Auto-Updating:** Every time you launch CyberOS, it automatically syncs with the latest repository updates so you're never running stale configurations.
+- **Lightweight & Fast:** Optimized for performance with XFCE visual effects disabled by default.
+- **Modular Utility Library:** Shared logic for logging and dependency validation.
+- **Setup Wizard:** Interactive `wizard.sh` for guided configuration.
 
-## 📦 Installation
+---
 
-To get the environment cloned and the massive dependency list installed automatically:
+## 📦 Installation & Setup
 
-```bash
-git clone https://github.com/DXN1-termux/CyberOS.git
-cd CyberOS
-chmod +x setup.sh CyberOS
-./setup.sh
-```
+1. **Clone the repo:**
+   ```bash
+   git clone https://github.com/DXN1-termux/CyberOS.git
+   cd CyberOS
+   ```
+2. **Launch the Wizard:**
+   ```bash
+   chmod +x wizard.sh
+   ./wizard.sh
+   ```
+   Select `[1]` to perform a full installation.
 
-*(Note: Ensure you have `sudo` privileges to install the core OS packages.)*
+---
 
 ## ⚡ Usage
 
-To start your bug hunting environment, just run the launcher script and provide a port number:
+To start your bug hunting environment:
 
 ```bash
-./CyberOS 5901
+./CyberOS <port>
 ```
+*Example: `./CyberOS 5901`*
 
-Boom. It launches on that port. Open any VNC Viewer (or web VNC client) and connect to your machine's IP on the port specified.
+Connect your favorite VNC viewer to `localhost:5901`.
 
 ---
-*Disclaimer: CyberOS is built for educational and authorized security testing only.*
+
+## 🛠 Project Structure
+
+- `CyberOS`: The primary launcher script.
+- `wizard.sh`: Interactive setup and maintenance wizard.
+- `setup.sh`: Automated dependency installer.
+- `lib/`: Shared modules and utility functions.
+- `hooks/`: Custom scripts for advanced user integration.
+
+---
+
+## 🛡 Security & Compliance
+
+CyberOS is designed for authorized security testing and educational purposes. Always operate within the scope of your target's bug bounty program.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to open an issue or pull request for any improvements or new tool suggestions.
