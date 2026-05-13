@@ -21,7 +21,8 @@ menu() {
     echo -e " ${BLUE}[3]${NC} Automated Resource Cleanup"
     echo -e " ${BLUE}[4]${NC} Launch Web Dashboard (Next.js)"
     echo -e " ${BLUE}[5]${NC} Reset VNC Credentials"
-    echo -e " ${BLUE}[6]${NC} View README / Documentation"
+    echo -e " ${BLUE}[6]${NC} System Security Hardening"
+    echo -e " ${BLUE}[7]${NC} View README / Documentation"
     echo -e " ${RED}[0]${NC} Exit Console"
     echo -e "\n${CYAN}==================================================${NC}"
 }
@@ -29,7 +30,7 @@ menu() {
 while true; do
     header
     menu
-    printf "Select choice [0-6]: "
+    printf "Select choice [0-7]: "
     read -r opt
 
     case "$opt" in
@@ -63,7 +64,8 @@ while true; do
         3)
             log_info "Cleaning temporary build artifacts..."
             rm -rf "$HOME/go/pkg" ~/.cache/go-build >/dev/null 2>&1
-            log_success "Cleanup complete. Storage recovered."
+            find ~/.vnc -name "*.log" -exec truncate -s 0 {} +
+            log_success "Cleanup complete. Storage recovered and logs rotated."
             sleep 2
             ;;
         4)
@@ -83,6 +85,10 @@ while true; do
             sleep 2
             ;;
         6)
+            harden_project
+            sleep 2
+            ;;
+        7)
             header
             head -n 50 "$CYBEROS_BASE/README.md"
             echo -e "\n... (Scroll up for more) ..."

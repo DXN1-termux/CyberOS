@@ -11,6 +11,9 @@ BLUE='\033[1;34m'
 CYAN='\033[1;36m'
 NC='\033[0m' # No Color
 
+# Load Central Configuration
+[ -f "${CYBEROS_BASE}/lib/config.sh" ] && . "${CYBEROS_BASE}/lib/config.sh"
+
 # Logging Functions
 log_info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
@@ -66,10 +69,19 @@ ensure_dep() {
     return 0
 }
 
+# Project Hardening Utility
+harden_project() {
+    log_info "Applying security hardening to project files..."
+    find "$CYBEROS_BASE" -type f -name "*.sh" -exec chmod 700 {} +
+    [ -f "$CYBEROS_BASE/.env" ] && chmod 600 "$CYBEROS_BASE/.env"
+    [ -f "$HOME/.vnc/passwd" ] && chmod 600 "$HOME/.vnc/passwd"
+    log_success "Hardening complete. Permissions restricted to owner."
+}
+
 # Persistent environment configuration (Refined for Isolation)
 update_env_path() {
     local entry=$1
-    local env_file="${CYBEROS_BASE}/lib/env.sh"
+    local env_file="${CYBEROS_ENV_FILE:-$CYBEROS_BASE/lib/env.sh}"
     mkdir -p "$(dirname "$env_file")"
     touch "$env_file"
     if ! grep -q "$entry" "$env_file" 2>/dev/null; then
@@ -86,7 +98,7 @@ update_env_path() {
 
 # Disk Space Verification
 check_disk_space() {
-    local required=$1
+    local required=${1:-2000}
     local available=$(df -m . | awk 'NR==2 {print $4}')
     if [ "$available" -lt "$required" ]; then
         log_error "Insufficient disk space. Available: ${available}MB, Required: ${required}MB"
