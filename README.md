@@ -1,24 +1,23 @@
-<h1 align="center">CyberOS v2.0.1 (PERFECTION)</h1>
+<h1 align="center">CyberOS v2.0.2 (IMMUTABLE_CORE)</h1>
 <p align="center">
   <b>MADE WITH ❤️ BY DXN1</b>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Build-v2.0.1--Phase--X-blue.svg" alt="Version">
-  <img src="https://img.shields.io/badge/Platform-Termux-brightgreen.svg" alt="Platform">
-  <img src="https://img.shields.io/badge/Status-Hardened-cyan.svg" alt="Status">
+  <img src="https://img.shields.io/badge/Build-v2.0.2--Phase--XII-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Status-Verifiable-cyan.svg" alt="Status">
 </p>
 
 ---
 
 ## 📖 Overview
-**CyberOS** is a specialized, zero-hassle, VNC-powered Linux distribution. Engineered specifically for security professionals, bug bounty hunters, and ethical hackers, it provides a pre-configured, hardened environment that bridges the gap between mobile flexibility and desktop power.
+**CyberOS** is a specialized, zero-hassle, VNC-powered Linux distribution. Now in its **Immutable Core (v2.0.2)** phase, CyberOS provides a cryptographically verifiable security environment that guarantees 100% environment reproducibility.
 
-### 🛡️ Phase X Improvements: Self-Healing & Autonomous Resilience
-- **Autonomous Doctor:** The launcher now scans and repairs the system (stale locks, permissions, binary integrity) on every boot.
-- **Engine Stability Watchdog:** Real-time monitoring of the VNC core during the first 5 seconds of launch.
-- **Wizard Repair Sector:** A dedicated menu for fixing common Termux/VNC drift issues without a full re-install.
-- **DBUS Integration:** Automatic machine-id generation and bus-launch management for 100% session reliability.
+### 🛡️ Phase XII Improvements: Verifiable Integrity
+- **Immutable Manifest (`manifest.json`):** A single, verifiable source of truth for all dependencies, environment variables, and configuration constants.
+- **Dependency Drift Detection:** The system now automatically audits the live runtime against the `manifest.json` to prevent environmental corruption or version drift.
+- **Self-Healing Audit Trail:** Integrated logging of autonomic recovery events for full environment accountability.
+- **Absolute Immutability:** System state is strictly enforced, ensuring consistent behavior across all Termux iterations.
 
 CyberOS eliminates the tedious configuration of remote GUIs, security toolchains, and desktop environments, allowing you to focus entirely on your target.
 
